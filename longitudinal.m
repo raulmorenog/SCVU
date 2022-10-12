@@ -102,7 +102,6 @@ function [m] = longitudinal(p)
 
 
 
-
 end
 
 function F = modos(x,a,b)       % revisar porque algo no va del todo bien
