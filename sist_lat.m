@@ -31,10 +31,10 @@ function lat = sist_lat(p)
     syms s z
     sympref('FloatingPointOutput',true)
     
-    C=[2*mu_latdir*s-Cy_beta,Czs-Cy_p*s,2*mu_latdir-Cy_r;...
+    C = [2*mu_latdir*s-Cy_beta,Czs-Cy_p*s,2*mu_latdir-Cy_r;...
         -Cl_beta,I_xxnd*s^2-Cl_p*s,-Cl_r-I_xznd*s;...
         -Cn_beta,-Cn_p*s-I_xznd*s^2,I_zznd*s-Cn_r];
-    D=[0,Cy_deltaR;Cl_deltaA,Cl_deltaR;Cn_deltaA,Cn_deltaR];
+    D = [0,Cy_deltaR;Cl_deltaA,Cl_deltaR;Cn_deltaA,Cn_deltaR];
     
     %Cramer y factorización con s ADIMENSIONAL (s gorro) --> FT con s
     %adimensional
