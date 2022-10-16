@@ -49,7 +49,7 @@ p.Cl_0 = 0.201; p.Cl_u = 0.020; p.Cl_alpha = 5.48; p.Cl_alphap = 2.5; p.Cl_q = 8
 p.Cm_0 = 0.05; p.Cm_u = 0; p.Cm_alpha = -1.89; p.Cm_alphap = -9.1; p.Cm_q = -34;
 p.Cm_Tu = 0; p.Cm_Taplha = 0;
 p.Cd_deltae = 0; p.Cl_deltae = 0.60; p.Cm_deltae = -2; p.Cm_deltaep = 0;
-%p.Cd_ih = 0; p.Cl_ih = 0; p.Ci_deltah = 0;     
+     
 
     % Derivadas de estabilidad lateral-direccionales 
 p.Cl_beta = -0.130; p.Cl_p = -0.50; p.Cl_r = 0.14; 
@@ -131,17 +131,17 @@ D=[0,Cy_deltaR;Cl_deltaA,Cl_deltaR;Cn_deltaA,Cn_deltaR];
 %adimensional
 DenLat=sym2poly(det(C)); %Cuártica de estabilidad Lat-Dir
 
-Num_deltaA_beta=sym2poly(det([D(:,1),C(:,2),C(:,3)]));    Num_deltaR_beta=sym2poly(det([D(:,2),C(:,2),C(:,3)]));
+Num_deltaA_beta = sym2poly(det([D(:,1),C(:,2),C(:,3)]));    Num_deltaR_beta=sym2poly(det([D(:,2),C(:,2),C(:,3)]));
 TFdeltaA_beta=tf([Num_deltaA_beta],[DenLat]);             TFdeltaR_beta=tf([Num_deltaR_beta],[DenLat]);                                               
 
-Num_deltaA_phi=sym2poly(det([C(:,1),D(:,1),C(:,3)]));     Num_deltaR_phi=sym2poly(det([C(:,1),D(:,2),C(:,3)]));
-TFdeltaA_phi=tf([Num_deltaA_phi],[DenLat]);               TFdeltaR_phi=tf([Num_deltaR_phi],[DenLat]);
+Num_deltaA_phi = sym2poly(det([C(:,1),D(:,1),C(:,3)]));     Num_deltaR_phi=sym2poly(det([C(:,1),D(:,2),C(:,3)]));
+TFdeltaA_phi = tf([Num_deltaA_phi],[DenLat]);               TFdeltaR_phi=tf([Num_deltaR_phi],[DenLat]);
 
 Num_deltaA_r=sym2poly(det([C(:,1),C(:,2),D(:,1)]));       Num_deltaR_r=sym2poly(det([C(:,1),C(:,2),D(:,2)]));
 TFdeltaA_r_nd=tf([Num_deltaA_r],[DenLat]);                TFdeltaR_r_nd=tf([Num_deltaR_r],[DenLat]);
 TFdeltaA_r=TFdeltaA_r_nd*tf(2*p.Us/p.b);                  TFdeltaR_r=TFdeltaR_r_nd*tf(2*p.Us/p.b);
 
-%Desadimensionalización de s (s = z*b/2Us) --> FT con s dimensional
+% Desadimensionalización de s (s = z*b/2Us) --> FT con s dimensional
 DenLatDim = sym2poly(subs(det(C),s,z*p.b/(2*p.Us)));
 
 Num_deltaA_betaDim = sym2poly(subs(det([D(:,1),C(:,2),C(:,3)]),s,z*p.b/(2*p.Us)));      Num_deltaR_betaDim = sym2poly(subs(det([D(:,2),C(:,2),C(:,3)]),s,z*p.b/(2*p.Us)));
@@ -154,8 +154,8 @@ Num_deltaA_rDim = sym2poly(subs(det([C(:,1),C(:,2),D(:,1)]),s,z*p.b/(2*p.Us))); 
 TFdeltaA_rDim = tf([Num_deltaA_rDim],[DenLatDim])*tf(2*p.Us/p.b);                       TFdeltaR_rDim = tf([Num_deltaR_rDim],[DenLatDim])*tf(2*p.Us/p.b);
 
 
-%Agruparmos las FT en estructuras --> Conclusión de momento: Las TF_Long coinciden con las del libro y las de Roskam, las TF_Lat-Dirc coinciden con
-%las del libro pero no con Roskam porque tiene signos cambiados en algunas derivadas (Cl_deltaR, Cn_deltaR, Cy_deltaR, Cn_p). Falta factorizar guay, diagramas y respuesta
+% Agruparmos las FT en estructuras --> Conclusión de momento: Las TF_Long coinciden con las del libro y las de Roskam, las TF_Lat-Dirc coinciden con
+% las del libro pero no con Roskam porque tiene signos cambiados en algunas derivadas (Cl_deltaR, Cn_deltaR, Cy_deltaR, Cn_p). Falta factorizar guay, diagramas y respuesta
 
 FT_Longitudinales = struct( ...
     'FTdeltaE_u',TFdeltae_uDim, ...
@@ -171,7 +171,19 @@ FT_Lateral_Direccionales = struct( ...
     'FTdeltaR_r',TFdeltaR_rDim);
 
 
+%% Obtención de las propiedades de las funciones de transferencia
+    %Paso a forma factorizada
+[zeros_u,polos_u,ganancia_u] = tf2zp(Num_deltae_uDim*p.Us,DenDim)
+G = zpk(zeros_u,polos_u,ganancia_u)         
+[w_natural,amort,polos] = damp(TFdeltae_uDim)
 
+[zeros_u,polos_u,ganancia_u] = tf2zp(Num_deltaR_betaDim ,DenLatDim)
+G = zpk(zeros_u,polos_u,ganancia_u)         
+[w_natural,amort,polos] = damp(TFdeltaR_betaDim)
 
+%% Prueba de las funciones
+
+LO = sist_long(p)
+LT = sist_lat(p)
 
 
