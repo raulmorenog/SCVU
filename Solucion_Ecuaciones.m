@@ -61,9 +61,84 @@ p.Cy_deltaA = 0; p.Cy_deltaR = -0.144;
 p.Cn_deltaA = -0.0012 ; p.Cn_deltaR = 0.0758;
 
 %% Funciones de Transferencia
+LO = sist_long(p);
+LT = sist_lat(p);
+    % Las guardamos en un cell para trabajar más fácil con ellas (en bucles)
+FT_long{1} = LO.FT_fact.FTdeltaE_u;
+FT_long{2} = LO.FT_fact.FTdeltaE_alpha;
+FT_long{3} = LO.FT_fact.FTdeltaE_theta;
 
-LO = sist_long(p)
-LT = sist_lat(p)
+FT_lat{1} = LT.FT_fact.FTdeltaA_beta; 
+FT_lat{2} = LT.FT_fact.FTdeltaA_phi;
+FT_lat{3} = LT.FT_fact.FTdeltaA_r;
+FT_lat{4} = LT.FT_fact.FTdeltaR_beta; 
+FT_lat{5} = LT.FT_fact.FTdeltaR_phi;
+FT_lat{6} = LT.FT_fact.FTdeltaR_r;
 
-FTdeltaE_theta = LO.FT_fact.FTdeltaE_theta      %Ejemplos de llamadas a las FT
-FTdeltaA_phi = LT.FT_fact.FTdeltaA_phi
+    % Mostramos las FT
+disp('Funciones de transferencia longitudinales, [u, alpha, theta])')
+for i = 1:length(FT_long)
+    FT_long{i}
+end
+disp('Funciones de transferencia lateral-direccional, [beta, phi, r][deltaA, deltaR])')
+for i = 1:length(FT_lat)
+    FT_lat{i}
+end
+
+%% Diagramas de Bode 
+label_long = {'$G_{u \delta_{E}}$','$G_{\alpha \delta_{E}}$','$G_{\theta \delta_{E}}$'};
+label_lat = {'$G_{\beta \delta_{A}}$','$G_{\phi \delta_{A}}$','$G_{r \delta_{A}}$',...
+    '$G_{\beta \delta_{R}}$','$G_{\phi \delta_{R}}$','$G_{r \delta_{R}}$'};
+
+for i = 1:length(FT_long)
+    figure(1);
+    bode(FT_long{i})
+    grid on; hold all 
+%     margin(FT_long{i})
+%     hold all
+    set(gcf,'Color',[1 1 1])
+end
+legend(label_long,'Interpreter','latex','Location','best')
+for i = 1:length(FT_lat)
+    figure(2);
+    bode(FT_lat{i})
+    grid on; hold all;
+%     margin(FT_lat{i})
+%     hold all
+    set(gcf,'Color',[1 1 1])
+end
+legend(label_lat,'Interpreter','latex','Location','best')
+
+%% Diagramas de Nichols
+
+for i = 1:length(FT_long)
+    figure(3);
+    nichols(FT_long{i})
+    grid on; hold all 
+    set(gcf,'Color',[1 1 1])
+end
+legend(label_long,'Interpreter','latex','Location','best')
+for i = 1:length(FT_lat)
+    figure(4);
+    nichols(FT_lat{i})
+    grid on; hold all;
+    set(gcf,'Color',[1 1 1])
+end
+legend(label_lat,'Interpreter','latex','Location','best')
+
+%% Respuesta escalón 
+for i = 1:length(FT_long)
+    figure(5);
+    step(FT_long{i})
+    grid on; hold all 
+    set(gcf,'Color',[1 1 1])
+end
+legend(label_long,'Interpreter','latex','Location','best')
+for i = 1:length(FT_lat)
+    figure(6);
+    step(FT_lat{i})
+    grid on; hold all;
+    set(gcf,'Color',[1 1 1])
+end
+legend(label_lat,'Interpreter','latex','Location','best')
+

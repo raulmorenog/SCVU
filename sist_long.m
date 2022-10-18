@@ -62,6 +62,7 @@ function  long = sist_long(p)
     % Cálculo de las propiedades de las FT 
         % Zeros, polos y ganancias
     [zeros_u,polos_u,ganancia_u] = tf2zp(Num_deltae_uDim*p.Us,DenDim);
+    %F = factorizacion(Num_deltae_uDim*p.Us,DenDim)
     [zeros_alpha,polos_alpha,ganancia_alpha] = tf2zp(Num_deltae_alphaDim,DenDim);
     [zeros_theta,polos_theta,ganancia_theta] = tf2zp(Num_deltae_thetaDim,DenDim);
         
@@ -98,3 +99,47 @@ function  long = sist_long(p)
         'T12_Fug',t12_fug);
 
 end
+
+% function TF = factorizacion(num,den,a)
+%     % Función para la factorización de las FT de la forma que se da en los 
+%     % apuntes. Devuelve la función de transferencia, con la entrada del
+%     % numerador,num, el denominador, den, y un vector de [zeros, polos,
+%     % ganancia], a .
+% 
+%     [zeros,polos,ganancia] = tf2zp(num,den);
+%     [w_n,amort,polos] = damp(tf(num,den));
+% 
+%     w_fug = w_n(1);  
+%     chi_fug = amort(1);
+%     w_cp = w_n(3); 
+%     chi_cp = amort(3); 
+%     
+%     for i = 1:length(zeros)
+%         if isreal(zeros(i)) == 1 
+%             tau(i) = 1/zeros(i)
+%             w(i) = 0; 
+%             chi(i) = 0;
+%         else 
+%             tau(i) = 0;
+%             [w(i),chi(i)] = fsolve(@(x) w_amor(x,zeros(i)),[w_fug,chi_fug]);
+%         end
+%     end
+%     k = ganancia;
+%     for i = 1:length(zeros)
+%         if w(i) == 0 & chi(i) == 0 
+%             k = k/zeros(i);
+%         else 
+%             k = k/w(i)^2; 
+%         end
+%     end 
+%     K = k/(w_fug*w_cp)^2
+%     
+%     FT = tf(K*[tau(1) 1]*[tau(2) 1],[]*[])
+%     i=1
+% end
+% 
+% function F = w_amor(x,raiz)
+%     % x(1) = frecuencia natural ; x(2) = amortiguamiento;
+%     F(1) = x(1)*x(2)-real(raiz);
+%     F(2) = x(1)*sqrt(x(2)^2-1)-imag(raiz); 
+% end
