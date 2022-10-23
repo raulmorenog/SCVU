@@ -15,7 +15,7 @@ p.Us = 450*ft2m;
 p.Ms = 0.434;
 p.qs = 128.2*lb2kg/(ft2m^2)*9.81;
 p.rhos = 2*p.qs/(p.Us^2);
-p.aplhas = 0*deg2rad; 
+p.alphas = 0*deg2rad; 
 p.epsilons = 0*deg2rad;
 p.thetas = 0*deg2rad;       % Crucero
 g = 9.81;
@@ -40,7 +40,7 @@ p.I_zz = 34.141e3*slg2kg*ft2m^2;
 p.I_xz = 4.371e3*slg2kg*ft2m^2;
 
 p.Czs = -p.m*g*cos(p.thetas)/(p.qs*p.Sw); 
-p.Cxs = p.Czs*tan(p.thetas);
+p.Cxs = -p.Czs*tan(p.thetas);
 
     % Derivadas de estabilidad longitudinales
 p.Cd_0 = 0.0270; p.Cd_u = 0; p.Cd_alpha = 0.131; 

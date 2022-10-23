@@ -5,14 +5,14 @@ function  long = sist_long(p)
     I_yynd = p.I_yy/(p.rhos*p.Sw*(p.c/2)^3);
     
     Cxs = p.Cxs;
-    Cx_u = p.CT_xu*cos(p.epsilons)-p.Cd_u;     
-    Cx_alpha = p.Cls-p.Cd_alpha;     
+    Cx_u = p.CT_xu*cos(p.epsilons) - p.Cd_u;     
+    Cx_alpha = p.Cls - p.Cd_alpha;     
     Cx_alphap = 0;                                  
     Cx_deltae = -p.Cd_deltae;                                   
     
     Czs = p.Czs;
-    Cz_u = -p.CT_xu*sin(p.epsilons)-p.Cl_u;    
-    Cz_alpha = -p.Cl_alpha-p.Cds;    
+    Cz_u = -p.CT_xu*sin(p.epsilons) - p.Cl_u;    
+    Cz_alpha = -p.Cl_alpha - p.Cds;    
     Cz_alphap = -p.Cl_alphap;    
     Cz_q = -p.Cl_q;    
     Cz_deltae = -p.Cl_deltae; 
@@ -28,10 +28,10 @@ function  long = sist_long(p)
     syms s z
     sympref('FloatingPointOutput',true)
     
-    A = [2*mu_long*s-Cx_u,-Cx_alpha,-Czs;...
-        -(Cz_u+2*Czs),(2*mu_long-Cz_alphap)*s-Cz_alpha,-(2*mu_long+Cz_q)*s;...
-        -Cm_u,-(Cm_alphap*s+Cm_alpha),I_yynd*s^2-Cm_q*s];
-    b = [Cx_deltae;Cz_deltae;Cm_deltaep*s+Cm_deltae];
+    A = [2*mu_long*s - Cx_u, -Cx_alpha, -Czs;...
+        -(Cz_u + 2*Czs), (2*mu_long - Cz_alphap)*s - Cz_alpha, -(2*mu_long + Cz_q)*s;...
+        -Cm_u, -(Cm_alphap*s + Cm_alpha), I_yynd*s^2 - Cm_q*s];
+    b = [Cx_deltae; Cz_deltae; Cm_deltaep*s + Cm_deltae];
     
     % Cramer y factorización con s ADIMENSIONAL (s gorro) --> FT con s
     % adimensional
@@ -47,7 +47,7 @@ function  long = sist_long(p)
     Num_deltae_theta=sym2poly(det([A(:,1),A(:,2),b]));
     TFdeltae_theta=tf([Num_deltae_theta],[Den]); 
     
-    %Desadimensionalización de s (s = z*c/2Us) --> FT con s dimensional
+    %Dimensionalización de s (s = z*c/2Us) --> FT con s dimensional
     DenDim = sym2poly(subs(det(A),s,z*p.c/(2*p.Us)));
     
     Num_deltae_uDim = sym2poly(subs(det([b,A(:,2),A(:,3)]),s,z*p.c/(2*p.Us)));
