@@ -1,4 +1,6 @@
 %% Obtención de las FT para el Beech 99
+%Una vez finalizada la ejecución todos los datos se almacenan en la
+%estructura FT_long
 clc
 clear all 
 close all 
@@ -105,7 +107,8 @@ sys.F(4,4) = 0;
 
 sys.B(1,1) = s.Cx_deltae / 2 / s.mu_long;
 sys.B(2,1) = s.Cz_deltae / (2*s.mu_long - s.Cz_alphap);
-sys.B(3,1) = s.Cm_deltae / s.I_yynd + s.Cm_alphap / s.I_yynd * s.Cz_deltae / (2*s.mu_long - s.Cz_alphap);
+sys.B(3,1) = s.Cm_deltae / s.I_yynd + s.Cm_alphap / ...
+    s.I_yynd * s.Cz_deltae / (2*s.mu_long - s.Cz_alphap);
 sys.B(4,1) = 0;
     
 %% Saco las funciones de transferencia adimensionalizadas
@@ -120,30 +123,52 @@ end
 % El denominador
 for i = 1:length(FT_nd.Denominator{1})
     j = i - 1;
-   FT.Denominator(length(FT_nd.Denominator{1}) - j) = FT_nd.Denominator{1}(length(FT_nd.Denominator{1}) - j)*(p.c/(2*p.Us))^j; 
+   FT.Denominator(length(FT_nd.Denominator{1}) - j) = ...
+       FT_nd.Denominator{1}(length(FT_nd.Denominator{1}) - j)*(p.c/(2*p.Us))^j; 
 end
 % Los numeradores 
 for i = 1:4
     for j = 1:length(FT_nd.Numerator{i})
         k = j - 1;
-        FT.Numerator{i}(length(FT_nd.Numerator{i}) - k) = FT_nd.Numerator{i}(length(FT_nd.Numerator{i}) - k)*(p.c/(2*p.Us))^k; 
+        FT.Numerator{i}(length(FT_nd.Numerator{i}) - k) = ...
+            FT_nd.Numerator{i}(length(FT_nd.Numerator{i}) - k)*(p.c/(2*p.Us))^k; 
     end
     FT_long.nofact{i} = tf(FT.Numerator{i},FT.Denominator);
 end
 FT_long.nofact{1} = FT_long.nofact{1}*p.Us;
 
 %% Factorizamos las funciones de transferencia
-FT_long.fact.deltae_u = zpk(FT_long.nofact{1});
-FT_long.fact.deltae_alpha = zpk(FT_long.nofact{2});
-FT_long.fact.deltae_theta = zpk(FT_long.nofact{3});
-FT_long.fact.deltae_p = zpk(FT_long.nofact{4});
+FT_long.fact = struct('deltae_u',zpk(FT_long.nofact{1}),...
+                     'deltae_alpha',zpk(FT_long.nofact{2}),...
+                     'deltae_theta',zpk(FT_long.nofact{3}),...
+                     'deltae_p',zpk(FT_long.nofact{4}));
 
-%% Calculo frecuencias y amortiguamientos de los modos
+%% Cálculo de propiedades de los modos
 [wn, amort, FT_long.Poles] = damp(FT_long.fact.deltae_u);
 FT_long.phugoid.wn = min(wn);
 FT_long.phugoid.amort = min(amort);
+FT_long.phugoid.period = 2*pi/FT_long.phugoid.wn;
 FT_long.shortperiod.wn = max(wn);
 FT_long.shortperiod.amort = max(amort);
+FT_long.shortperiod.period = 2*pi/FT_long.shortperiod.wn;
 
+%% FT de deltae a u 
+display(FT_long.fact.deltae_u)
+% Diagrama de Bode
+bode(FT_long.fact.deltae_u)
+grid on, hold on
+bode(FT_long.fact.deltae_alpha)
+bode(FT_long.fact.deltae_theta)
+bode(FT_long.fact.deltae_p)
+% Diagrama de Nichols
 
+% Respuesta escalón
+
+% Respuesta rampa unitarla
+
+%% FT de deltae a alpha
+
+%% FT de deltae a theta 
+
+%% Ft de deltae a p (no haría falta)
     
