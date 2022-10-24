@@ -140,7 +140,7 @@ FT_long.nofact{1} = FT_long.nofact{1}*p.Us*pi/180;  %Damos dimensiones de veloci
 %% Factorizamos las funciones de transferencia
 FT_long.fact = struct('deltae_u',zpk(FT_long.nofact{1}),...
                      'deltae_alpha',zpk(FT_long.nofact{2}),...
-                     'deltae_p',zpk(FT_long.nofact{3}),...
+                     'deltae_q',zpk(FT_long.nofact{3}),...
                      'deltae_theta',zpk(FT_long.nofact{4}));
 
 %% Cálculo de propiedades de los modos
@@ -170,6 +170,9 @@ grid on; set(gcf,'Color',[1 1 1]);
 Step1 = figure(3);
 step(FT_long.fact.deltae_u); set(gcf,'Color',[1 1 1]);
 % Respuesta rampa unitarla
+t = 0:1:900;
+Rampa1 = figure(4);
+lsim(FT_long.fact.deltae_u,t,t);
 
 %% FT de deltae a alpha
 display(FT_long.fact.deltae_alpha)
@@ -185,6 +188,8 @@ grid on; set(gcf,'Color',[1 1 1]);
 Step2 = figure(7);
 step(FT_long.fact.deltae_alpha); set(gcf,'Color',[1 1 1]);
 % Respuesta rampa unitarla
+Rampa2 = figure(8);
+lsim(FT_long.fact.deltae_alpha,t,t);
 
 %% FT de deltae a theta 
 display(FT_long.fact.deltae_theta)
@@ -200,18 +205,22 @@ grid on; set(gcf,'Color',[1 1 1]);
 Step3 = figure(11);
 step(FT_long.fact.deltae_theta); set(gcf,'Color',[1 1 1]);
 % Respuesta rampa unitarla
+Rampa3 = figure(12);
+lsim(FT_long.fact.deltae_theta,t,t);
 
-%% Ft de deltae a p (no haría falta)
-display(FT_long.fact.deltae_p)
+%% Ft de deltae a q (no haría falta)
+display(FT_long.fact.deltae_q)
 % Diagrama de Bode
 Bode4 = figure(13);
-bode(FT_long.fact.deltae_p)
+bode(FT_long.fact.deltae_q)
 grid on; set(gcf,'Color',[1 1 1]); 
 % Diagrama de Nichols
 Nichols4 = figure(14);
-nichols(FT_long.fact.deltae_p)
+nichols(FT_long.fact.deltae_q)
 grid on; set(gcf,'Color',[1 1 1]);
 % Respuesta escalón
 Step4 = figure(15);
-step(FT_long.fact.deltae_p); set(gcf,'Color',[1 1 1]);
+step(FT_long.fact.deltae_q); set(gcf,'Color',[1 1 1]);
 % Respuesta rampa unitarla
+Rampa4 = figure(16);
+lsim(FT_long.fact.deltae_q,t,t);
