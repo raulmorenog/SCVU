@@ -86,59 +86,115 @@ for i = 1:length(FT_lat)
 end
 
 %% Diagramas de Bode 
-label_long = {'$G_{u \delta_{E}}$','$G_{\alpha \delta_{E}}$','$G_{\theta \delta_{E}}$'};
-label_lat = {'$G_{\beta \delta_{A}}$','$G_{\phi \delta_{A}}$','$G_{r \delta_{A}}$',...
-    '$G_{\beta \delta_{R}}$','$G_{\phi \delta_{R}}$','$G_{r \delta_{R}}$'};
+label_long = {'$$G_{u \delta_{E}}$$','$$G_{\alpha \delta_{E}}$$','$$G_{\theta \delta_{E}}$$'};
+label_lat = {'$$G_{\beta \delta_{A}}$$','$$G_{\phi \delta_{A}}$$','$$G_{r \delta_{A}}$$',...
+    '$$G_{\beta \delta_{R}}$$','$$G_{\phi \delta_{R}}$$','$$G_{r \delta_{R}}$$'};
 
+k = 1;
+iFig = 1;
 for i = 1:length(FT_long)
-    figure(1);
+    figure(iFig);
     bode(FT_long{i})
     grid on; hold all 
-%     margin(FT_long{i})
-%     hold all
+    margin(FT_long{i})
     set(gcf,'Color',[1 1 1])
+    legend(label_long{i},'Interpreter','latex','Location','best')
+    iFig = i+k; 
 end
-legend(label_long,'Interpreter','latex','Location','best')
+
+k = iFig;
 for i = 1:length(FT_lat)
-    figure(2);
+    figure(iFig);
     bode(FT_lat{i})
     grid on; hold all;
-%     margin(FT_lat{i})
-%     hold all
+    margin(FT_lat{i})
     set(gcf,'Color',[1 1 1])
+    legend(label_lat{i},'Interpreter','latex','Location','best')
+    iFig = i+k;
 end
-legend(label_lat,'Interpreter','latex','Location','best')
+
 
 %% Diagramas de Nichols
-
+k = iFig;
 for i = 1:length(FT_long)
-    figure(3);
+    figure(iFig);
     nichols(FT_long{i})
-    grid on; hold all 
+    grid on; 
     set(gcf,'Color',[1 1 1])
+    legend(label_long{i},'Interpreter','latex','Location','best')
+    iFig = i+k;
 end
-legend(label_long,'Interpreter','latex','Location','best')
+
+k = iFig;
 for i = 1:length(FT_lat)
-    figure(4);
+    figure(iFig);
     nichols(FT_lat{i})
-    grid on; hold all;
+    grid on;
     set(gcf,'Color',[1 1 1])
+    legend(label_lat{i},'Interpreter','latex','Location','best')
+    iFig = i+k;
 end
-legend(label_lat,'Interpreter','latex','Location','best')
 
 %% Respuesta escalón 
+k = iFig;
 for i = 1:length(FT_long)
-    figure(5);
+    figure(iFig);
     step(FT_long{i})
-    grid on; hold all 
+    grid on;  
     set(gcf,'Color',[1 1 1])
+    legend(label_long{i},'Interpreter','latex','Location','best')
+    iFig = i+k;
 end
-legend(label_long,'Interpreter','latex','Location','best')
+k = iFig;
 for i = 1:length(FT_lat)
-    figure(6);
+    figure(iFig);
     step(FT_lat{i})
-    grid on; hold all;
+    grid on;
     set(gcf,'Color',[1 1 1])
+    legend(label_lat{i},'Interpreter','latex','Location','best')
+    iFig = i+k;
 end
-legend(label_lat,'Interpreter','latex','Location','best')
 
+
+%% Respuesta a rampa unitaria
+    % Análisis de la respuesta estacionaria
+t = (0:0.01:800)';
+u = max(0,min(t-1,1));
+
+k = iFig;
+for i = 1:length(FT_long)
+    figure(iFig);
+    lsim(FT_long{i},u,t)
+    grid on; 
+    legend(label_long{i},'Interpreter','latex','Location','best')
+    iFig = i+k;
+end
+k = iFig;
+for i = 1:length(FT_lat)
+    figure(iFig);
+    lsim(FT_lat{i},u,t)
+    grid on; 
+    legend(label_lat{i},'Interpreter','latex','Location','best')
+    iFig = i+k;
+end
+    % Análisis de la respuesta transitoria
+t = (0:0.01:20)';
+u = max(0,min(t-1,1));
+
+k = iFig;
+for i = 1:length(FT_long)
+    figure(iFig);
+    lsim(FT_long{i},u,t)
+    grid on; 
+    legend(label_long{i},'Interpreter','latex','Location','best')
+    iFig = i+k;
+end
+k = iFig;
+for i = 1:length(FT_lat)
+    figure(iFig);
+    lsim(FT_lat{i},u,t)
+    grid on; 
+    legend(label_lat{i},'Interpreter','latex','Location','best')
+    iFig = i+k;
+end
+iFig;
