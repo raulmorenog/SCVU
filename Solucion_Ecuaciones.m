@@ -173,7 +173,7 @@ for i = 1:length(FT_long)
     figure(iFig);
     step(FT_long{i})
     grid on;  
-    
+
     stepInfo_Long{i} = stepinfo(FT_long{i});
     %legend(label_long{i},'Interpreter','latex','Location','best')
     iFig = i+k;
@@ -211,7 +211,7 @@ end
 %% Respuesta a rampa unitaria
     % Análisis de la respuesta estacionaria
 t = (0:0.01:300)';
-u = max(0,min(t-1,1));
+u = max(0,min(t/10-1,10));
 
 k = iFig;
 for i = 1:length(FT_long)
@@ -236,8 +236,8 @@ for i = 1:length(FT_lat)
     iFig = i+k;
 end
     % Análisis de la respuesta transitoria
-t = (0:0.01:20)';
-u = max(0,min(t-1,1));
+t = (0:0.01:30)';
+u = max(0,min(t/10-1,1));
 
 k = iFig;
 for i = 1:length(FT_long)
