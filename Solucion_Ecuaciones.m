@@ -70,11 +70,12 @@ FT_long{3} = LO.FT_fact.FTdeltaE_theta;
 
 FT_lat{1} = LT.FT_fact.FTdeltaA_beta; 
 FT_lat{2} = LT.FT_fact.FTdeltaA_phi;
-FT_lat{3} = LT.FT_fact.FTdeltaA_r;
-FT_lat{4} = LT.FT_fact.FTdeltaR_beta; 
-FT_lat{5} = LT.FT_fact.FTdeltaR_phi;
-FT_lat{6} = LT.FT_fact.FTdeltaR_r;
-FT_lat{7} = LT.FT_fact.FTdeltaA_p;
+FT_lat{3} = LT.FT_fact.FTdeltaA_p;
+FT_lat{4} = LT.FT_fact.FTdeltaA_r;
+FT_lat{5} = LT.FT_fact.FTdeltaR_beta; 
+FT_lat{6} = LT.FT_fact.FTdeltaR_phi;
+FT_lat{7} = LT.FT_fact.FTdeltaR_r;
+
 
     % Mostramos las FT
 disp('Funciones de transferencia longitudinales, [u, alpha, theta])')
@@ -88,8 +89,8 @@ end
 
 %% Diagramas de Bode 
 label_long = {'$$G\_{u\delta\_{e}}$$','$$G\_{\alpha\delta\_{e}}$$','$$G\_{\theta \delta\_{e}}$$'};
-label_lat = {'$$G\_{\beta\delta\_{a}}$$','$$G\_{\phi \delta\_{a}}$$','$$G\_{r \delta\_{a}}$$',...
-    '$$G\_{\beta \delta\_{r}}$$','$$G\_{\phi \delta\_{r}}$$','$$G\_{r \delta\_{r}}$$','$$G\_{p \delta\_{a}}$$'};
+label_lat = {'$$G\_{\beta\delta\_{a}}$$','$$G\_{\phi \delta\_{a}}$$','$$G\_{p \delta\_{a}}$$',...
+    '$$G\_{r \delta\_{a}}$$','$$G\_{\beta \delta\_{r}}$$','$$G\_{\phi \delta\_{r}}$$','$$G\_{r \delta\_{r}}$$'};
 
 k = 1;
 iFig = 1;
@@ -99,7 +100,7 @@ for i = 1:length(FT_long)
     grid on; hold all 
     margin(FT_long{i})
     set(gcf,'Color',[1 1 1])
-    legend(label_long{i},'Interpreter','latex','Location','best')
+    %legend(label_long{i},'Interpreter','latex','Location','best')
     iFig = i+k; 
 end
 
@@ -110,7 +111,7 @@ for i = 1:length(FT_lat)
     grid on; hold all;
     margin(FT_lat{i},{10^-5,10^2})
     set(gcf,'Color',[1 1 1])
-    legend(label_lat{i},'Interpreter','latex','Location','best')
+    %legend(label_lat{i},'Interpreter','latex','Location','best')
     iFig = i+k;
 end
 
@@ -118,21 +119,50 @@ end
 %% Diagramas de Nichols
 k = iFig;
 for i = 1:length(FT_long)
-    figure(iFig);
-    nichols(FT_long{i},{10^-3,10^4})
-    grid on; 
+    [modulo_bode fase_bode] = bode(FT_long{i},{10^-3,10^4});
+    modulodB_bode = squeeze(20*log10(modulo_bode));
+    faseDeg_bode = squeeze(fase_bode);
+
+    figure(iFig)
+    plot(faseDeg_bode,modulodB_bode,'Color','b','Linewidth',2)
+    grid on; hold on; 
+    plot(faseDeg_bode(1),modulodB_bode(1),'ro','Linewidth',2)
+    hold on; 
+    plot([180 180],[0 100],'k-','Linewidth',2)
+    plot([-180 -180],[0 100],'k-','Linewidth',2)
+    xlabel('Open-Loop Freq (rd/s)'); 
+    ylabel('Open-Loop Gain (dB)');
+    set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
+    % Ticks de separacion
+    hold on; set(gca,'XTick',[-720:45:720]); % Grados
+    hold on; set(gca,'YTick',[-150:10:100]); % dB
     set(gcf,'Color',[1 1 1])
-    legend(label_long{i},'Interpreter','latex','Location','best')
+    %legend(label_long{i},'Interpreter','latex','Location','best')
     iFig = i+k;
+
 end
 
 k = iFig;
 for i = 1:length(FT_lat)
-    figure(iFig);
-    nichols(FT_lat{i},{10^-5,10^2})
-    grid on;
+    [modulo_bode fase_bode] = bode(FT_lat{i},{10^-5,10^2});
+    modulodB_bode = squeeze(20*log10(modulo_bode));
+    faseDeg_bode = squeeze(fase_bode);
+
+    figure(iFig)
+    plot(faseDeg_bode,modulodB_bode,'Color','b','Linewidth',2)
+    grid on; hold on; 
+    plot(faseDeg_bode(1),modulodB_bode(1),'ro','Linewidth',2)
+    hold on; 
+    plot([180 180],[0 100],'k-','Linewidth',2)
+    plot([-180 -180],[0 100],'k-','Linewidth',2)
+    xlabel('Open-Loop Freq (rd/s)'); 
+    ylabel('Open-Loopn Gain (dB)');
+    set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
+    % Ticks de separacion
+    hold on; set(gca,'XTick',[-720:45:720]); % Grados
+    hold on; set(gca,'YTick',[-150:10:100]); % dB
     set(gcf,'Color',[1 1 1])
-    legend(label_lat{i},'Interpreter','latex','Location','best')
+    %legend(label_lat{i},'Interpreter','latex','Location','best')
     iFig = i+k;
 end
 
@@ -142,8 +172,7 @@ for i = 1:length(FT_long)
     figure(iFig);
     step(FT_long{i})
     grid on;  
-    set(gcf,'Color',[1 1 1])
-    legend(label_long{i},'Interpreter','latex','Location','best')
+    %legend(label_long{i},'Interpreter','latex','Location','best')
     iFig = i+k;
 end
 k = iFig;
@@ -151,15 +180,14 @@ for i = 1:length(FT_lat)
     figure(iFig);
     step(FT_lat{i})
     grid on;
-    set(gcf,'Color',[1 1 1])
-    legend(label_lat{i},'Interpreter','latex','Location','best')
+    %legend(label_lat{i},'Interpreter','latex','Location','best')
     iFig = i+k;
 end
 
 
 %% Respuesta a rampa unitaria
     % Análisis de la respuesta estacionaria
-t = (0:0.01:800)';
+t = (0:0.01:300)';
 u = max(0,min(t-1,1));
 
 k = iFig;
@@ -167,7 +195,7 @@ for i = 1:length(FT_long)
     figure(iFig);
     lsim(FT_long{i},u,t)
     grid on; 
-    legend(label_long{i},'Interpreter','latex','Location','best')
+    %legend(label_long{i},'Interpreter','latex','Location','best')
     iFig = i+k;
 end
 k = iFig;
@@ -175,7 +203,7 @@ for i = 1:length(FT_lat)
     figure(iFig);
     lsim(FT_lat{i},u,t)
     grid on; 
-    legend(label_lat{i},'Interpreter','latex','Location','best')
+    %legend(label_lat{i},'Interpreter','latex','Location','best')
     iFig = i+k;
 end
     % Análisis de la respuesta transitoria
@@ -187,7 +215,7 @@ for i = 1:length(FT_long)
     figure(iFig);
     lsim(FT_long{i},u,t)
     grid on; 
-    legend(label_long{i},'Interpreter','latex','Location','best')
+    %legend(label_long{i},'Interpreter','latex','Location','best')
     iFig = i+k;
 end
 k = iFig;
@@ -195,7 +223,6 @@ for i = 1:length(FT_lat)
     figure(iFig);
     lsim(FT_lat{i},u,t)
     grid on; 
-    legend(label_lat{i},'Interpreter','latex','Location','best')
+    %legend(label_lat{i},'Interpreter','latex','Location','best')
     iFig = i+k;
 end
-iFig;
