@@ -3,7 +3,7 @@
 %estructura FT_lat
 clc
 clear all 
-close all 
+%close all 
 
 %% Parámetros --> Los guardamos en una estrucutra p
 % Cambios de unidades
@@ -47,7 +47,7 @@ p.Cxs = -p.Czs*tan(p.thetas);
 % Derivadas de estabilidad lateral-direccionales 
 p.Cl_beta = -0.130; p.Cl_p = -0.50; p.Cl_r = 0.14; 
 p.Cy_beta = -0.59; p.Cy_p = -0.19; p.Cy_r = 0.39;
-p.Cn_beta = 0.08; p.Cn_p = -0.019; p.Cn_r = -0.197;  %Cn_p puesto positivo aunque en los datos era negativo.
+p.Cn_beta = 0.08; p.Cn_p = 0.019; p.Cn_r = -0.197;  %Cn_p puesto positivo aunque en los datos era negativo.
 p.Cn_Tbeta = 0; 
 p.Cl_deltaA = 0.156; p.Cl_deltaR = -0.0106; 
 p.Cy_deltaA = 0; p.Cy_deltaR = -0.144; 

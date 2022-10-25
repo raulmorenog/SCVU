@@ -82,14 +82,14 @@ disp('Funciones de transferencia longitudinales, [u, alpha, theta])')
 for i = 1:length(FT_long)
     FT_long{i}
 end
-disp('Funciones de transferencia lateral-direccional, [beta, phi, r][deltaA, deltaR])')
+disp('Funciones de transferencia lateral-direccional, [beta, phi, p, r][deltaA, deltaR])')
 for i = 1:length(FT_lat)
     FT_lat{i}
 end
 
 %% Diagramas de Bode 
 label_long = {'$$G\_{u\delta\_{e}}$$','$$G\_{\alpha\delta\_{e}}$$','$$G\_{\theta \delta\_{e}}$$'};
-label_lat = {'$$G\_{\beta\delta\_{a}}$$','$$G\_{\phi \delta\_{a}}$$',,'$$G\_{p \delta\_{a}}$$',...
+label_lat = {'$$G\_{\beta\delta\_{a}}$$','$$G\_{\phi \delta\_{a}}$$','$$G\_{p \delta\_{a}}$$',...
     '$$G\_{r \delta\_{a}}$$','$$G\_{\beta \delta\_{r}}$$','$$G\_{\phi \delta\_{r}}$$','$$G\_{r \delta\_{r}}$$'};
 
 k = 1;
@@ -162,17 +162,19 @@ for i = 1:length(FT_lat)
     hold on; set(gca,'XTick',[-720:45:720]); % Grados
     hold on; set(gca,'YTick',[-150:10:100]); % dB
     set(gcf,'Color',[1 1 1])
-
+    %legend(label_lat{i},'Interpreter','latex','Location','best')
     iFig = i+k;
 end
 
 %% Respuesta escalón 
+    % Análisis de la respuesta estacionaria
 k = iFig;
 for i = 1:length(FT_long)
     figure(iFig);
     step(FT_long{i})
     grid on;  
-    legend(label_long{i},'Interpreter','latex','Location','best')
+    stepInfo_Long{i} = stepinfo(FT_long{i});
+    %legend(label_long{i},'Interpreter','latex','Location','best')
     iFig = i+k;
 end
 k = iFig;
@@ -180,9 +182,28 @@ for i = 1:length(FT_lat)
     figure(iFig);
     step(FT_lat{i})
     grid on;
-    legend(label_lat{i},'Interpreter','latex','Location','best')
+    stepInfo_Lat{i} = stepinfo(FT_lat{i});
+    %legend(label_lat{i},'Interpreter','latex','Location','best')
     iFig = i+k;
 end
+    % Análsis de la respueta transitoria
+k = iFig;
+for i = 1:length(FT_long)
+    figure(iFig);
+    step(FT_long{i},20)
+    grid on;  
+    %legend(label_long{i},'Interpreter','latex','Location','best')
+    iFig = i+k;
+end
+k = iFig;
+for i = 1:length(FT_lat)
+    figure(iFig);
+    step(FT_lat{i},20)
+    grid on;
+    %legend(label_lat{i},'Interpreter','latex','Location','best')
+    iFig = i+k;
+end
+
 
 
 %% Respuesta a rampa unitaria
@@ -193,15 +214,16 @@ u = max(0,min(t-1,1));
 k = iFig;
 for i = 1:length(FT_long)
     figure(iFig);
-    lsim(FT_long{i},t,t)
+    lsim(FT_long{i},u,t)
     grid on; 
+    rampaInfo_Long{i} = lsiminfo(FT_long{i},t)
     %legend(label_long{i},'Interpreter','latex','Location','best')
     iFig = i+k;
 end
 k = iFig;
 for i = 1:length(FT_lat)
     figure(iFig);
-    lsim(FT_lat{i},t,t)
+    lsim(FT_lat{i},u,t)
     grid on; 
     %legend(label_lat{i},'Interpreter','latex','Location','best')
     iFig = i+k;
@@ -213,7 +235,7 @@ u = max(0,min(t-1,1));
 k = iFig;
 for i = 1:length(FT_long)
     figure(iFig);
-    lsim(FT_long{i},t,t)
+    lsim(FT_long{i},u,t)
     grid on; 
     %legend(label_long{i},'Interpreter','latex','Location','best')
     iFig = i+k;
@@ -221,7 +243,7 @@ end
 k = iFig;
 for i = 1:length(FT_lat)
     figure(iFig);
-    lsim(FT_lat{i},t,t)
+    lsim(FT_lat{i},u,t)
     grid on; 
     %legend(label_lat{i},'Interpreter','latex','Location','best')
     iFig = i+k;

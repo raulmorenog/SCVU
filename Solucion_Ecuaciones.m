@@ -82,7 +82,7 @@ disp('Funciones de transferencia longitudinales, [u, alpha, theta])')
 for i = 1:length(FT_long)
     FT_long{i}
 end
-disp('Funciones de transferencia lateral-direccional, [beta, phi, r][deltaA, deltaR])')
+disp('Funciones de transferencia lateral-direccional, [beta, phi, p, r][deltaA, deltaR])')
 for i = 1:length(FT_lat)
     FT_lat{i}
 end
@@ -167,11 +167,14 @@ for i = 1:length(FT_lat)
 end
 
 %% Respuesta escalón 
+    % Análisis de la respuesta estacionaria
 k = iFig;
 for i = 1:length(FT_long)
     figure(iFig);
     step(FT_long{i})
     grid on;  
+    
+    stepInfo_Long{i} = stepinfo(FT_long{i});
     %legend(label_long{i},'Interpreter','latex','Location','best')
     iFig = i+k;
 end
@@ -180,9 +183,29 @@ for i = 1:length(FT_lat)
     figure(iFig);
     step(FT_lat{i})
     grid on;
+
+    stepInfo_Lat{i} = stepinfo(FT_lat{i});
     %legend(label_lat{i},'Interpreter','latex','Location','best')
     iFig = i+k;
 end
+    % Análsis de la respueta transitoria
+k = iFig;
+for i = 1:length(FT_long)
+    figure(iFig);
+    step(FT_long{i},20)
+    grid on;  
+    %legend(label_long{i},'Interpreter','latex','Location','best')
+    iFig = i+k;
+end
+k = iFig;
+for i = 1:length(FT_lat)
+    figure(iFig);
+    step(FT_lat{i},20)
+    grid on;
+    %legend(label_lat{i},'Interpreter','latex','Location','best')
+    iFig = i+k;
+end
+
 
 
 %% Respuesta a rampa unitaria
@@ -194,7 +217,10 @@ k = iFig;
 for i = 1:length(FT_long)
     figure(iFig);
     lsim(FT_long{i},u,t)
-    grid on; 
+    grid on;
+
+    [y,t_] = lsim(FT_long{i},u,t);
+    rampaInfo_Long{i} = lsiminfo(y,t_);
     %legend(label_long{i},'Interpreter','latex','Location','best')
     iFig = i+k;
 end
@@ -203,6 +229,9 @@ for i = 1:length(FT_lat)
     figure(iFig);
     lsim(FT_lat{i},u,t)
     grid on; 
+
+    [y,t_] = lsim(FT_lat{i},u,t);
+    rampaInfo_Lat{i} = lsiminfo(y,t_);
     %legend(label_lat{i},'Interpreter','latex','Location','best')
     iFig = i+k;
 end
