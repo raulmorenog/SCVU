@@ -119,7 +119,7 @@ end
 k = iFig;
 for i = 1:length(FT_long)
     figure(iFig);
-    nichols(FT_long{i})
+    nichols(FT_long{i},{10^-3,10^4})
     grid on; 
     set(gcf,'Color',[1 1 1])
     legend(label_long{i},'Interpreter','latex','Location','best')
@@ -129,14 +129,14 @@ end
 k = iFig;
 for i = 1:length(FT_lat)
     figure(iFig);
-    nichols(FT_lat{i})
+    nichols(FT_lat{i},{10^-5,10^2})
     grid on;
     set(gcf,'Color',[1 1 1])
     legend(label_lat{i},'Interpreter','latex','Location','best')
     iFig = i+k;
 end
 
-% Respuesta escalón 
+%% Respuesta escalón 
 k = iFig;
 for i = 1:length(FT_long)
     figure(iFig);
