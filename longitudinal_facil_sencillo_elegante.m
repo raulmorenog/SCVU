@@ -52,17 +52,6 @@ p.Cm_0 = 0.05; p.Cm_u = 0; p.Cm_alpha = -1.89; p.Cm_alphap = -9.1; p.Cm_q = -34;
 p.Cm_Tu = 0; p.Cm_Taplha = 0;
 p.Cd_deltae = 0; p.Cl_deltae = 0.60; p.Cm_deltae = -2; p.Cm_deltaep = 0;
      
-
-% Derivadas de estabilidad lateral-direccionales 
-p.Cl_beta = -0.130; p.Cl_p = -0.50; p.Cl_r = 0.14; 
-p.Cy_beta = -0.59; p.Cy_p = -0.19; p.Cy_r = 0.39;
-p.Cn_beta = 0.08; p.Cn_p = 0.019; p.Cn_r = -0.197;  %Cn_p puesto positivo aunque en los datos era negativo.
-p.Cn_Tbeta = 0; 
-p.Cl_deltaA = 0.156; p.Cl_deltaR = -0.0106; 
-p.Cy_deltaA = 0; p.Cy_deltaR = -0.144; 
-p.Cn_deltaA = -0.0012 ; p.Cn_deltaR = 0.0758;
-
-
 %% Derivadas de estabilidad y adimensionalización --> los guardamos en la estructura s
 s.mu_long = p.m/(p.rhos*p.Sw*p.c/2);
 s.I_yynd = p.I_yy/(p.rhos*p.Sw*(p.c/2)^3);
@@ -136,7 +125,7 @@ for i = 1:4
     FT_long.nofact{i} = tf(FT.Numerator{i},FT.Denominator);
 end
 FT_long.nofact{1} = FT_long.nofact{1}*p.Us*pi/180;  %Damos dimensiones de velocidad entre grados
-
+FT_long.nofact{3} = FT_long.nofact{3}*(2*p.Us/p.c);
 %% Factorizamos las funciones de transferencia
 FT_long.fact = struct('deltae_u',zpk(FT_long.nofact{1}),...
                      'deltae_alpha',zpk(FT_long.nofact{2}),...
