@@ -211,7 +211,7 @@ end
 %% Respuesta a rampa unitaria
     % Análisis de la respuesta estacionaria
 t = (0:0.01:300)';
-u = max(0,min(t/10-1,10));
+u = max(0,min(t/10-1,1));
 
 k = iFig;
 for i = 1:length(FT_long)
@@ -236,7 +236,7 @@ for i = 1:length(FT_lat)
     iFig = i+k;
 end
     % Análisis de la respuesta transitoria
-t = (0:0.01:30)';
+t = (0:0.01:300)';
 u = max(0,min(t/10-1,1));
 
 k = iFig;
@@ -244,6 +244,7 @@ for i = 1:length(FT_long)
     figure(iFig);
     lsim(FT_long{i},u,t)
     grid on; 
+    axis([0 40 0 10])
     %legend(label_long{i},'Interpreter','latex','Location','best')
     iFig = i+k;
 end
@@ -252,6 +253,7 @@ for i = 1:length(FT_lat)
     figure(iFig);
     lsim(FT_lat{i},u,t)
     grid on; 
+    axis([0 40 0 10])
     %legend(label_lat{i},'Interpreter','latex','Location','best')
     iFig = i+k;
 end
