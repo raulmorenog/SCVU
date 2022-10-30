@@ -46,6 +46,9 @@ function  long = sist_long(p)
     
     Num_deltae_theta=sym2poly(det([A(:,1),A(:,2),b]));
     TFdeltae_theta=tf([Num_deltae_theta],[Den]); 
+
+    Num_deltae_q=sym2poly(s*det([A(:,1),A(:,2),b]));
+    TFdeltae_q=tf([Num_deltae_q],[Den]); 
     
     %Dimensionalización de s (s = z*c/2Us) --> FT con s dimensional
     DenDim = sym2poly(subs(det(A),s,z*p.c/(2*p.Us)));
@@ -59,13 +62,17 @@ function  long = sist_long(p)
     Num_deltae_thetaDim = sym2poly(subs(det([A(:,1),A(:,2),b]),s,z*p.c/(2*p.Us)));
     TFdeltae_thetaDim = tf([Num_deltae_thetaDim],[DenDim]);
 
+    Num_deltae_qDim = sym2poly(subs(s*det([A(:,1),A(:,2),b]),s,z*p.c/(2*p.Us)));
+    TFdeltae_qDim = tf([Num_deltae_qDim],[DenDim])*tf(2*p.Us/p.c);
+
     % Cálculo de las propiedades de las FT 
         % Zeros, polos y ganancias
     [zeros_u,polos_u,ganancia_u] = tf2zp(Num_deltae_uDim*p.Us,DenDim);
     %F = factorizacion(Num_deltae_uDim*p.Us,DenDim)
     [zeros_alpha,polos_alpha,ganancia_alpha] = tf2zp(Num_deltae_alphaDim,DenDim);
     [zeros_theta,polos_theta,ganancia_theta] = tf2zp(Num_deltae_thetaDim,DenDim);
-        
+    [zeros_q,polos_q,ganancia_q] = tf2zp(Num_deltae_qDim*2*p.Us/p.c,DenDim);
+
         % Amortiguamientos y frecuencias de los modos
     [w_natural,amort,polos] = damp(TFdeltae_uDim); 
     
@@ -81,13 +88,15 @@ function  long = sist_long(p)
     long.FT_nfact = struct( ...
     'FTdeltaE_u',TFdeltae_uDim, ...
     'FTdeltaE_alpha',TFdeltae_alphaDim, ...
-    'FTdeltaE_theta',TFdeltae_thetaDim);
+    'FTdeltaE_theta',TFdeltae_thetaDim, ...
+    'FTdeltaE_q',TFdeltae_qDim);
         
         % Funciones de transferencia factorizadas dimensionales
     long.FT_fact = struct( ...
     'FTdeltaE_u',zpk(zeros_u,polos_u,ganancia_u), ...
     'FTdeltaE_alpha',zpk(zeros_alpha,polos_alpha,ganancia_alpha), ...
-    'FTdeltaE_theta',zpk(zeros_theta,polos_theta,ganancia_theta));
+    'FTdeltaE_theta',zpk(zeros_theta,polos_theta,ganancia_theta), ...
+    'FTdeltaE_q',zpk(zeros_q,polos_q,ganancia_q));
 
         % Propiedades de los modos 
     long.Prop_mod = struct(...
