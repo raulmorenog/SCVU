@@ -131,8 +131,8 @@ for i = 1:length(FT_long)
     hold on; 
     plot([180 180],[0 100],'k-','Linewidth',2)
     plot([-180 -180],[0 100],'k-','Linewidth',2)
-    xlabel('Open-Loop Freq (rd/s)'); 
-    ylabel('Open-Loop Gain (dB)');
+    xlabel('Open-Loop Phase [deg])'); 
+    ylabel('Open-Loop Gain [dB]');
     set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
     % Ticks de separacion
     hold on; set(gca,'XTick',[-720:45:720]); % Grados
@@ -156,8 +156,8 @@ for i = 1:length(FT_lat)
     hold on; 
     plot([180 180],[0 100],'k-','Linewidth',2)
     plot([-180 -180],[0 100],'k-','Linewidth',2)
-    xlabel('Open-Loop Freq (rd/s)'); 
-    ylabel('Open-Loopn Gain (dB)');
+    xlabel('Open-Loop Phase [deg]'); 
+    ylabel('Open-Loopn Gain [dB]');
     set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
     % Ticks de separacion
     hold on; set(gca,'XTick',[-720:45:720]); % Grados
@@ -210,7 +210,7 @@ end
 
 %% Respuesta a rampa unitaria
     % Análisis de la respuesta estacionaria
-t = (0:1:300)';
+t = (0:1:400)';
 y = ones(length(t),1); 
 for i = 1:11
     y(i) = (i-1)/10;
@@ -239,7 +239,7 @@ for i = 1:length(FT_lat)
     iFig = i+k;
 end
     % Análisis de la respuesta transitoria
-t = (0:1:300)';
+t = (0:1:400)';
 y = ones(length(t),1); 
 for i = 1:11
     y(i) = (i-1)/10;

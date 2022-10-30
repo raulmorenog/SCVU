@@ -67,6 +67,7 @@ LT = sist_lat(p);
 FT_long{1} = LO.FT_fact.FTdeltaE_u;
 FT_long{2} = LO.FT_fact.FTdeltaE_alpha;
 FT_long{3} = LO.FT_fact.FTdeltaE_theta;
+%FT_long{4} = LO.FT_fact.FTdeltaE_q;
 
 FT_lat{1} = LT.FT_fact.FTdeltaA_beta; 
 FT_lat{2} = LT.FT_fact.FTdeltaA_phi;
@@ -96,7 +97,7 @@ k = 1;
 iFig = 1;
 for i = 1:length(FT_long)
     figure(iFig);
-    bode(FT_long{i},{10^-3,10^4})
+    bode(FT_long{i},{10^-3,10^4},'b-')
     grid on; hold all 
     margin(FT_long{i})
     set(gcf,'Color',[1 1 1])
@@ -107,7 +108,7 @@ end
 k = iFig;
 for i = 1:length(FT_lat)
     figure(iFig);
-    bode(FT_lat{i})
+    bode(FT_lat{i},'b-')
     grid on; hold all;
     margin(FT_lat{i},{10^-5,10^2})
     set(gcf,'Color',[1 1 1])
@@ -130,7 +131,7 @@ for i = 1:length(FT_long)
     hold on; 
     plot([180 180],[0 100],'k-','Linewidth',2)
     plot([-180 -180],[0 100],'k-','Linewidth',2)
-    xlabel('Open-Loop Freq (rd/s)'); 
+    xlabel('Open-Loop Phase ($\$)'); 
     ylabel('Open-Loop Gain (dB)');
     set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
     % Ticks de separacion
@@ -207,11 +208,9 @@ for i = 1:length(FT_lat)
 end
 
 
-
 %% Respuesta a rampa unitaria
     % Análisis de la respuesta estacionaria
-t = (0:1:300)';
-%u = max(0,min(t/10-1/10,1));
+t = (0:1:400)';
 y = ones(length(t),1); 
 for i = 1:11
     y(i) = (i-1)/10;
@@ -231,17 +230,16 @@ end
 k = iFig;
 for i = 1:length(FT_lat)
     figure(iFig);
-    lsim(FT_lat{i},u,t)
+    lsim(FT_lat{i},y,t)
     grid on; 
 
-    [y,t_] = lsim(FT_lat{i},u,t);
-    rampaInfo_Lat{i} = lsiminfo(y,t_);
+    [Y,t_] = lsim(FT_lat{i},y,t);
+    rampaInfo_Lat{i} = lsiminfo(Y,t_);
     %legend(label_lat{i},'Interpreter','latex','Location','best')
     iFig = i+k;
 end
     % Análisis de la respuesta transitoria
-t = (0:0.01:300)';
-%u = max(0,min(t/10-1,1));
+t = (0:1:400)';
 y = ones(length(t),1); 
 for i = 1:11
     y(i) = (i-1)/10;
@@ -251,7 +249,7 @@ end
 k = iFig;
 for i = 1:length(FT_long)
     figure(iFig);
-    lsim(FT_long{i},u,t)
+    lsim(FT_long{i},y,t)
     grid on; 
     axis([0 40 0 10])
     %legend(label_long{i},'Interpreter','latex','Location','best')
@@ -260,7 +258,7 @@ end
 k = iFig;
 for i = 1:length(FT_lat)
     figure(iFig);
-    lsim(FT_lat{i},u,t)
+    lsim(FT_lat{i},y,t)
     grid on; 
     axis([0 40 0 10])
     %legend(label_lat{i},'Interpreter','latex','Location','best')
