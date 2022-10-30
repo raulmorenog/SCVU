@@ -155,23 +155,28 @@ grid on; set(gcf,'Color',[1 1 1]);
 FT_long.bode.deltae_u.phugoid = bode(FT_long.fact.deltae_u,FT_long.phugoid.wn);
 FT_long.bode.deltae_u.shortperiod = bode(FT_long.fact.deltae_u,FT_long.shortperiod.wn);
 % Diagrama de Nichols
-[modulo_bode, fase_bode] = bode(FT_long.fact.deltae_u ,{10^-3,10^2});
+Nichols1 = figure(2);
+nichols(FT_long.fact.deltae_u)
+grid on; set(gcf,'Color',[1 1 1]);
+
+[modulo_bode fase_bode] = bode(FT_long.{i},{10^-3,10^2});
 modulodB_bode = squeeze(20*log10(modulo_bode));
 faseDeg_bode = squeeze(fase_bode);
-figure(2)
+
+figure(iFig)
 plot(faseDeg_bode,modulodB_bode,'Color','b','Linewidth',2)
 grid on; hold on; 
 plot(faseDeg_bode(1),modulodB_bode(1),'ro','Linewidth',2)
 hold on; 
 plot([180 180],[0 100],'k-','Linewidth',2)
 plot([-180 -180],[0 100],'k-','Linewidth',2)
-xlabel('Open-Loop Phase(deg)'); 
+xlabel('Open-Loop Freq (rd/s)'); 
 ylabel('Open-Loop Gain (dB)');
 set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
-    % Ticks de separacion
-    hold on; set(gca,'XTick',[-720:45:720]); % Grados
-    hold on; set(gca,'YTick',[-150:10:100]); % dB
-    set(gcf,'Color',[1 1 1])
+% Ticks de separacion
+hold on; set(gca,'XTick',[-720:45:720]); % Grados
+hold on; set(gca,'YTick',[-150:10:100]); % dB
+set(gcf,'Color',[1 1 1])
 % Respuesta escalón
 Step1 = figure(3);
 step(FT_long.fact.deltae_u); set(gcf,'Color',[1 1 1]);
@@ -194,24 +199,9 @@ grid on; set(gcf,'Color',[1 1 1]);
 FT_long.bode.deltae_alpha.phugoid = bode(FT_long.fact.deltae_alpha,FT_long.phugoid.wn);
 FT_long.bode.deltae_alpha.shortperiod = bode(FT_long.fact.deltae_alpha,FT_long.shortperiod.wn);
 % Diagrama de Nichols
-clear modulo_bode fase_bode modulodB_bode faseDeg_bode
-[modulo_bode, fase_bode] = bode(FT_long.fact.deltae_alpha ,{10^-3,10^2});
-modulodB_bode = squeeze(20*log10(modulo_bode));
-faseDeg_bode = squeeze(fase_bode);
-figure(6)
-plot(faseDeg_bode,modulodB_bode,'Color','b','Linewidth',2)
-grid on; hold on; 
-plot(faseDeg_bode(1),modulodB_bode(1),'ro','Linewidth',2)
-hold on; 
-plot([180 180],[0 100],'k-','Linewidth',2)
-plot([-180 -180],[0 100],'k-','Linewidth',2)
-xlabel('Open-Loop Phase (deg)'); 
-ylabel('Open-Loop Gain (dB)');
-set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
-    % Ticks de separacion
-    hold on; set(gca,'XTick',[-720:45:720]); % Grados
-    hold on; set(gca,'YTick',[-150:10:100]); % dB
-    set(gcf,'Color',[1 1 1])
+Nichols2 = figure(6);
+nichols(FT_long.fact.deltae_alpha)
+grid on; set(gcf,'Color',[1 1 1]);
 % Respuesta escalón
 Step2 = figure(7);
 step(FT_long.fact.deltae_alpha); set(gcf,'Color',[1 1 1]);
@@ -230,27 +220,9 @@ grid on; set(gcf,'Color',[1 1 1]);
 FT_long.bode.deltae_theta.phugoid = bode(FT_long.fact.deltae_theta,FT_long.phugoid.wn);
 FT_long.bode.deltae_theta.shortperiod = bode(FT_long.fact.deltae_theta,FT_long.shortperiod.wn);
 % Diagrama de Nichols
-% % figure(56)
-% % nichols(FT_long.fact.deltae_theta)
-% % grid on
-clear modulo_bode fase_bode modulodB_bode faseDeg_bode
-[modulo_bode, fase_bode] = bode(FT_long.fact.deltae_theta ,{10^-3,10^2});
-modulodB_bode = squeeze(20*log10(modulo_bode));
-faseDeg_bode = squeeze(fase_bode);
-figure(10)
-plot(faseDeg_bode,modulodB_bode,'Color','b','Linewidth',2)
-grid on; hold on; 
-plot(faseDeg_bode(1),modulodB_bode(1),'ro','Linewidth',2)
-hold on; 
-plot([180 180],[0 100],'k-','Linewidth',2)
-plot([-180 -180],[0 100],'k-','Linewidth',2)
-xlabel('Open-Loop Phase (deg)'); 
-ylabel('Open-Loop Gain (dB)');
-set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
-    % Ticks de separacion
-    hold on; set(gca,'XTick',[-720:45:720]); % Grados
-    hold on; set(gca,'YTick',[-150:10:100]); % dB
-    set(gcf,'Color',[1 1 1])
+Nichols3 = figure(10);
+nichols(FT_long.fact.deltae_theta)
+grid on; set(gcf,'Color',[1 1 1]);
 % Respuesta escalón
 Step3 = figure(11);
 step(FT_long.fact.deltae_theta); set(gcf,'Color',[1 1 1]);
@@ -269,24 +241,9 @@ grid on; set(gcf,'Color',[1 1 1]);
 FT_long.bode.deltae_q.phugoid = bode(FT_long.fact.deltae_q,FT_long.phugoid.wn);
 FT_long.bode.deltae_q.shortperiod = bode(FT_long.fact.deltae_q,FT_long.shortperiod.wn);
 % Diagrama de Nichols
-clear modulo_bode fase_bode modulodB_bode faseDeg_bode
-[modulo_bode, fase_bode] = bode(FT_long.fact.deltae_q ,{10^-3,10^2});
-modulodB_bode = squeeze(20*log10(modulo_bode));
-faseDeg_bode = squeeze(fase_bode);
-figure(14)
-plot(faseDeg_bode,modulodB_bode,'Color','b','Linewidth',2)
-grid on; hold on; 
-plot(faseDeg_bode(1),modulodB_bode(1),'ro','Linewidth',2)
-hold on; 
-plot([180 180],[0 100],'k-','Linewidth',2)
-plot([-180 -180],[0 100],'k-','Linewidth',2)
-xlabel('Open-Loop Phase (deg)'); 
-ylabel('Open-Loop Gain (dB)');
-set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
-    % Ticks de separacion
-    hold on; set(gca,'XTick',[-720:45:720]); % Grados
-    hold on; set(gca,'YTick',[-150:10:100]); % dB
-    set(gcf,'Color',[1 1 1])
+Nichols4 = figure(14);
+nichols(FT_long.fact.deltae_q)
+grid on; set(gcf,'Color',[1 1 1]);
 % Respuesta escalón
 Step4 = figure(15);
 step(FT_long.fact.deltae_q); set(gcf,'Color',[1 1 1]);
