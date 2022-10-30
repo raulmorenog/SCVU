@@ -126,6 +126,7 @@ for i = 1:4
 end
 FT_long.nofact{1} = FT_long.nofact{1}*p.Us*pi/180;  %Damos dimensiones de velocidad entre grados
 FT_long.nofact{3} = FT_long.nofact{3}*(2*p.Us/p.c);
+
 %% Factorizamos las funciones de transferencia
 FT_long.fact = struct('deltae_u',zpk(FT_long.nofact{1}),...
                      'deltae_alpha',zpk(FT_long.nofact{2}),...
@@ -149,8 +150,8 @@ FT_long.shortperiod.t12 = -log(2)/real(FT_long.shortperiod.poles(1));
 display(FT_long.fact.deltae_u)
 % Diagrama de Bode
 Bode1 = figure(1);
-bode(FT_long.fact.deltae_u,{10^-2,10^2})
-grid on; set(gcf,'Color',[1 1 1]); margin(FT_long.fact.deltae_u)
+margin(FT_long.fact.deltae_u,{10^-3,10^2});
+grid on; set(gcf,'Color',[1 1 1]); 
 FT_long.bode.deltae_u.phugoid = bode(FT_long.fact.deltae_u,FT_long.phugoid.wn);
 FT_long.bode.deltae_u.shortperiod = bode(FT_long.fact.deltae_u,FT_long.shortperiod.wn);
 % Diagrama de Nichols
@@ -169,14 +170,13 @@ for i = 1:11
 end
 Rampa1 = figure(4);
 lsim(FT_long.fact.deltae_u,y,t);
-%FT_long.rampa.deltae_u = lsiminfo(FT_long.fact.deltae_u,y,t);
 
 %% FT de deltae a alpha
 display(FT_long.fact.deltae_alpha)
 % Diagrama de Bode
 Bode2 = figure(5);
-bode(FT_long.fact.deltae_alpha,{10^-2,10^2})
-grid on; set(gcf,'Color',[1 1 1]); margin(FT_long.fact.deltae_alpha);
+margin(FT_long.fact.deltae_alpha,{10^-3,10^2})
+grid on; set(gcf,'Color',[1 1 1]);
 FT_long.bode.deltae_alpha.phugoid = bode(FT_long.fact.deltae_alpha,FT_long.phugoid.wn);
 FT_long.bode.deltae_alpha.shortperiod = bode(FT_long.fact.deltae_alpha,FT_long.shortperiod.wn);
 % Diagrama de Nichols
@@ -186,7 +186,7 @@ grid on; set(gcf,'Color',[1 1 1]);
 % Respuesta escalón
 Step2 = figure(7);
 step(FT_long.fact.deltae_alpha); set(gcf,'Color',[1 1 1]);
-FT_long.step.deltae_alpha.info = stepinfo(FT_long.fact.deltae_u);
+FT_long.step.deltae_alpha.info = stepinfo(FT_long.fact.deltae_alpha);
 % Respuesta rampa unitarla
 Rampa2 = figure(8);
 lsim(FT_long.fact.deltae_alpha,y,t);
@@ -196,8 +196,8 @@ lsim(FT_long.fact.deltae_alpha,y,t);
 display(FT_long.fact.deltae_theta)
 % Diagrama de Bode
 Bode3 = figure(9);
-bode(FT_long.fact.deltae_theta,{10^-2,10^2})
-grid on; set(gcf,'Color',[1 1 1]); margin(FT_long.fact.deltae_theta);
+margin(FT_long.fact.deltae_theta,{10^-3,10^2});
+grid on; set(gcf,'Color',[1 1 1]); 
 FT_long.bode.deltae_theta.phugoid = bode(FT_long.fact.deltae_theta,FT_long.phugoid.wn);
 FT_long.bode.deltae_theta.shortperiod = bode(FT_long.fact.deltae_theta,FT_long.shortperiod.wn);
 % Diagrama de Nichols
@@ -207,7 +207,7 @@ grid on; set(gcf,'Color',[1 1 1]);
 % Respuesta escalón
 Step3 = figure(11);
 step(FT_long.fact.deltae_theta); set(gcf,'Color',[1 1 1]);
-FT_long.step.deltae_theta.info = stepinfo(FT_long.fact.deltae_u);
+FT_long.step.deltae_theta.info = stepinfo(FT_long.fact.deltae_theta);
 % Respuesta rampa unitarla
 Rampa3 = figure(12);
 lsim(FT_long.fact.deltae_theta,y,t);
@@ -217,8 +217,8 @@ lsim(FT_long.fact.deltae_theta,y,t);
 display(FT_long.fact.deltae_q)
 % Diagrama de Bode
 Bode4 = figure(13);
-bode(FT_long.fact.deltae_q,{10^-2,10^2})
-grid on; set(gcf,'Color',[1 1 1]); margin(FT_long.fact.deltae_q);
+margin(FT_long.fact.deltae_q,{10^-3,10^2});
+grid on; set(gcf,'Color',[1 1 1]);
 FT_long.bode.deltae_q.phugoid = bode(FT_long.fact.deltae_q,FT_long.phugoid.wn);
 FT_long.bode.deltae_q.shortperiod = bode(FT_long.fact.deltae_q,FT_long.shortperiod.wn);
 % Diagrama de Nichols
@@ -228,7 +228,7 @@ grid on; set(gcf,'Color',[1 1 1]);
 % Respuesta escalón
 Step4 = figure(15);
 step(FT_long.fact.deltae_q); set(gcf,'Color',[1 1 1]);
-FT_long.step.deltae_q.info = stepinfo(FT_long.fact.deltae_u);
+FT_long.step.deltae_q.info = stepinfo(FT_long.fact.deltae_q);
 % Respuesta rampa unitarla
 Rampa4 = figure(16);
 lsim(FT_long.fact.deltae_q,y,t);
