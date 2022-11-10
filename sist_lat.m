@@ -89,6 +89,9 @@ function lat = sist_lat(p)
     Num_deltaA_pDim = sym2poly(subs(s*det([C(:,1),D(:,1),C(:,3)]),s,z*p.b/(2*p.Us)));                
     TFdeltaA_pDim = tf([Num_deltaA_pDim],[DenLatDim])*tf(2*p.Us/p.b);
 
+    Num_deltaR_pDim = sym2poly(subs(s*det([C(:,1),D(:,2),C(:,3)]),s,z*p.b/(2*p.Us)));                
+    TFdeltaA_pDim = tf([Num_deltaR_pDim],[DenLatDim])*tf(2*p.Us/p.b);
+
     % Cálculo de las propiedades de las FT
         % Zeros, polos y ganancias
     [zeros_deltaA_beta,polos_deltaA_beta,ganancia_deltaA_beta] = tf2zp(Num_deltaA_betaDim ,DenLatDim);
@@ -98,6 +101,8 @@ function lat = sist_lat(p)
     [zeros_deltaA_rDim,polos_deltaA_rDim,ganancia_deltaA_rDim] = tf2zp(Num_deltaA_rDim*2*p.Us/p.b ,DenLatDim); 
     [zeros_deltaR_rDim,polos_deltaR_rDim,ganancia_deltaR_rDim] = tf2zp(Num_deltaR_rDim*2*p.Us/p.b ,DenLatDim); 
     [zeros_deltaA_pDim,polos_deltaA_pDim,ganancia_deltaA_pDim] = tf2zp(Num_deltaA_pDim*2*p.Us/p.b ,DenLatDim);
+    [zeros_deltaR_pDim,polos_deltaR_pDim,ganancia_deltaR_pDim] = tf2zp(Num_deltaR_pDim*2*p.Us/p.b ,DenLatDim);
+
         % Amortiguamientos y frecuencias de los modos
     [w_natural,amort,polos] = damp(TFdeltaA_betaDim);
 
@@ -121,7 +126,8 @@ function lat = sist_lat(p)
     'FTdeltaR_beta',TFdeltaR_betaDim, ...
     'FTdeltaR_phi',TFdeltaR_phiDim, ...
     'FTdeltaR_r',TFdeltaR_rDim, ...
-    'FTdeltaA_p',TFdeltaA_pDim);   
+    'FTdeltaA_p',TFdeltaA_pDim, ...
+    'FTdeltaR_p',TFdeltaA_pDim);   
 
         % Funciones de tranferencia factorizadas dimensionales
     lat.FT_fact = struct( ...
@@ -131,7 +137,8 @@ function lat = sist_lat(p)
     'FTdeltaR_beta',zpk(zeros_deltaR_betaDim,polos_deltaR_betaDim,ganancia_deltaR_betaDim), ...
     'FTdeltaR_phi',zpk(zeros_deltaR_phiDim,polos_deltaR_phiDim,ganancia_deltaR_phiDim), ...
     'FTdeltaR_r',zpk(zeros_deltaR_rDim,polos_deltaR_rDim,ganancia_deltaR_rDim), ...
-    'FTdeltaA_p',zpk(zeros_deltaA_pDim,polos_deltaA_pDim,ganancia_deltaA_pDim));
+    'FTdeltaA_p',zpk(zeros_deltaA_pDim,polos_deltaA_pDim,ganancia_deltaA_pDim), ...
+    'FTdeltaR_p',zpk(zeros_deltaR_pDim,polos_deltaR_pDim,ganancia_deltaR_pDim));
 
         % Propiedades de los modos 
     lat.Prop_mod = struct(...
