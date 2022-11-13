@@ -55,17 +55,21 @@ F = linspace(0,5,10);
 % Variamos los coeficientes
 Cn_beta = p.Cn_beta*F;
 Cn_r = p.Cn_r*F;
-figure(101)
 POLES = 1e20;
 for i = 1:length(F)
     for j = 1:length(F)
         p.Cn_beta = Cn_beta(i);
         p.Cn_r = Cn_r(j);
         FT_sensibilidad(i,j) = FT_lat_function_elegante(p);
+        X = real(FT_sensibilidad(i,j).Poles);
+        Y = imag(FT_sensibilidad(i,j).Poles);
+        figure(102)
+        scatter(X,Y,'x'); hold on; grid on;     % Representa pero no en zplane
         POLES = [POLES;FT_sensibilidad(i,j).Poles];
     end
 end
 % Representamos
+figure(101)
 zplane([],POLES)
 axis([-10 0.5 -5 5]);grid on
 
