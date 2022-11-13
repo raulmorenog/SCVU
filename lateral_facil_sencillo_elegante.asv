@@ -167,3 +167,5 @@ FT_lat.dutchroll.period = 2*pi/FT_lat.dutchroll.wn;
 FT_lat.dutchroll.amort = amort(2);
 FT_lat.dutchroll.t12 = -log(2)/real(FT_lat.dutchroll.poles(1)); 
 
+%% Variamos los Cn_beta y Cn_r
+F_beta = linspace(0,3,9)
