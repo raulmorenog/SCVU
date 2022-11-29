@@ -50,6 +50,39 @@ p.Cl_deltaA = 0.156; p.Cl_deltaR = -0.0106;
 p.Cy_deltaA = 0; p.Cy_deltaR = -0.144; 
 p.Cn_deltaA = -0.0012 ; p.Cn_deltaR = 0.0758;
 
+%% Actuadores EMA (Electro-Mechanical Actuator)
+Lc = 4.5e-3; Rc = 0.64; tauc = Lc/Rc; %Propiedades eléctricas
+Kmv = 0.0426; Jm= 3.36e-3; taum = Jm/Kmv; %Propiedades mecánicas
+Ge = tf([1/tauc],[1,1/tauc]); %Delay eléctrico ~ 7ms
+Gm = tf([1/taum],[1,1/taum]); %Delay mecánico ~ 80ms
+G_act = tf([1],[tauc+taum,1]); %Delay eléctrico + mecánico // Equivalente a Ge*Gm
+
+figure(1); bode(G_act); 
+figure(2); step(G_act);
+%Opción B: Delay puro de wn = 20rad/s (Literatura)
+%H = tf([1],[1/20,1])
+
+%% Sensores
+%Sensor de beta --> Veleta
+Delay_dist = 0.65; %m
+V_wind_tunnel = 10; %m/s
+delay_vane = Delay_dist/V_wind_tunnel; %s
+
+[num_vane,den_vane] = pade(delay_vane,2); %Aproximacion de Pade de orden 2
+G_vane = tf(num_vane,den_vane);
+%G_vane = tf([-delay_vane/2,1],[delay_vane/2,1]); %Forma menos elegante
+
+figure(3); bode(G_vane); 
+figure(4); step(G_vane);
+
+%Sensor de r --> Giróscopo (IMU)
+delay_gyro = 10e-3; %s
+[num_gyro,den_gyro] = pade(delay_gyro,2); %Aproximacion de Pade de orden 2
+G_gyro = tf(num_gyro,den_gyro);
+%G_gyro = tf([-delay_gyro/2,1],[delay_gyro/2,1]); %Forma menos elegante
+
+figure(5); bode(G_gyro); 
+figure(6); step(G_gyro);
 %% Análisis de sensibilidad
 F = linspace(0,5,10);
 % Variamos los coeficientes
