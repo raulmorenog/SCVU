@@ -2,6 +2,7 @@
 clc
 clear all 
 close all 
+
 %% Metemos todos los datos
 % Cambios de unidades
 ft2m = 0.3048;      % ft a m
@@ -50,9 +51,8 @@ p.Cl_deltaA = 0.156; p.Cl_deltaR = -0.0106;
 p.Cy_deltaA = 0; p.Cy_deltaR = -0.144; 
 p.Cn_deltaA = -0.0012 ; p.Cn_deltaR = 0.0758;
 
-%% Direct link
-FT_lat = FT_lat_function_elegante(p);
-KDL_pDeltaA = 1/FT_lat.fact.deltaA_phi.K;
+%% FT de la planta totalmente libre
+FT_lat = FT_lat_function_elegante(p);   %Calcularmos las funciones de transferencia de la planta sin aumentar
 
 %% Actuadores EMA (Electro-Mechanical Actuator)
 Lc = 4.5e-3; Rc = 0.64; tauc = Lc/Rc; %Propiedades eléctricas
@@ -89,46 +89,89 @@ figure(5); bode(G_gyro);
 figure(6); step(G_gyro);
 
 %% Análisis de sensibilidad
-%F = linspace(0,5,10);
-F = 0:0.5:5;
+X_p = [real(FT_lat.Poles)]; %Parte real de los polos del la planta libre
+Y_p = [imag(FT_lat.Poles)]; %Parte imaginaria de los polos de la planta libre
+F = 0:0.5:5;    %Valores para los cuales se va a efectuar el barrido
 % Variamos los coeficientes
 Cn_beta = p.Cn_beta*F;
 Cn_r = p.Cn_r*F;
 POLES = 1e20;
+X = 1e20; Y = 1e20;
 for i = 1:length(F)
     for j = 1:length(F)
-        p.Cn_beta = Cn_beta(i);
-        p.Cn_r = Cn_r(j);
-        FT_sensibilidad(i,j) = FT_lat_function_elegante(p);
-        X = real(FT_sensibilidad(i,j).Poles);
-        Y = imag(FT_sensibilidad(i,j).Poles);
-
-        figure(102)
-        scatter(X,Y,'x'); hold on; grid on;     % Representa pero no en zplane
+        s = p;
+        s.Cn_beta = Cn_beta(i);
+        s.Cn_r = Cn_r(j);
+        FT_sensibilidad(i,j) = FT_lat_function_elegante(s);
+        %Representamos los polos para el barrido de coeficientes
+        X = [X;real(FT_sensibilidad(i,j).Poles)];
+        Y = [Y;imag(FT_sensibilidad(i,j).Poles)];
         POLES = [POLES;FT_sensibilidad(i,j).Poles];
     end
 end
-% X_lim = -0.19;
-% Y_lim = 1*sqrt(1 - 0.19^2);
-% xline(X_lim);    yline(Y_lim);
-wnDR_lim = 1;
-chiDR_lim = 0.19
+Contorno_raices = figure(7); %Entregable
+scatter(X,Y,'x'); 
+hold on;
+scatter(X_p,Y_p,'*','k');grid on; axis([-2.5 0.2 -4.5 4.5]);
+xlabel('$$Re [s^{-1}]$$','interpreter','latex'); ylabel('$$Im [s^{-1}]$$','interpreter','latex');
+wnDR_lim = 1;   %Límite de normas
+chiDR_lim = 0.19;    %Límite de normas
+%Representamos los límites de las normas para elegir los valores target
+%deseados
 A = -5:0.1:0.5;
+figure(8)
+scatter(X,Y,'x'); grid on; axis([-2 1 0 5]);
+hold on
 plot(A,-tan(acos(chiDR_lim)).*A,'k-')
-hold on; 
 viscircles([0 0],wnDR_lim)
-axis([-5 0.5 0 4.5])
-%axis([-18 0 0 18])
-% Representamos
-% figure(101)
-% zplane([],POLES)
-% axis([-10 0.5 -5 5]);grid on
-p.Cn_beta = Cn_beta(3);
-p.Cn_r = Cn_r(11);
-FT_22 = FT_lat_function_elegante(p);
-FT_22.Poles
-wnDR = FT_22.dutchroll.wn;
-chiDR = FT_22.dutchroll.amort;
+
+s.Cn_beta = Cn_beta(3);    %Varlor deseado de Cn_beta
+s.Cn_r = Cn_r(11);         %Valor deseado de Cn_r_target
+FT_22 = FT_lat_function_elegante(s);
+X_m = [real(FT_22.Poles)];
+Y_m = [imag(FT_22.Poles)];
+scatter(X_m,Y_m,'o','r')
+scatter(X_p,Y_p,'*','k')
+
+%Elección de las derivadas de estabilidad target y nuevas características
+%del modo
+Cn_beta_target = Cn_beta(3);
+Cn_r_target = Cn_r(11);
+wnDR_target = FT_22.dutchroll.wn;
+chiDR_target = FT_22.dutchroll.amort;
 
 %% Direct link
-KDL_pDeltaA = 1/FT_22.fact.deltaA_phi.K;
+% Nos basamos en el modelo de 1gdl como indican las diapos, calculado
+% analíticamente
+FT_conv_balance_1gdl.nofact = tf([p.Cl_deltaA*2*p.Us/p.b],[p.I_xx/(p.rhos*p.Sw*(p.b/2)^3)*(p.b/2/p.Us), -p.Cl_p]);
+%Dimensionalizamos
+FT_conv_balance_1gdl.fact = zpk(FT_conv_balance_1gdl.nofact);
+FT_conv_balance_1gdl.Kstatic = -FT_conv_balance_1gdl.fact.K/FT_conv_balance_1gdl.fact.P{1,1};   %SAco la ganancia estática
+K_DL = 1/FT_conv_balance_1gdl.Kstatic;  %Valor de la ganancia del direct link
+
+%% Respuesta temporal con el direct link y actuador (compilar este apartado cuando el Simulink esté correcto)
+%Habrá que definir la duración del escalón, es de 20s que lo hemos sacado a
+%ojo de las gráficas de respuesta a escalón.
+RT_OL_133 = sim('KDL_act_planta_133',40);     %Llamo a modelo de simulink para apartado 1.3.3      
+figure(9)
+plot(RT_OL_133.tout,RT_OL_133.deltaA_stick); grid on;   %Deflexión elegida para el stick
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$\delta_{a,stick} \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+figure(10)
+plot(RT_OL_133.tout,RT_OL_133.beta); grid on;      %Ángulo de resbalamiento
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$\beta \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+figure(11)
+plot(RT_OL_133.tout,RT_OL_133.phi); grid on;   %Ángulo de balance
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$\phi \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+figure(12)
+plot(RT_OL_133.tout,RT_OL_133.r); grid on;   %Velocidad de guiñada
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$r \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+figure(13)
+plot(RT_OL_133.tout,RT_OL_133.p);  grid on;   %Velocidad de balance
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$p \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+
+%% SAS 
