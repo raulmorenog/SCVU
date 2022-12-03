@@ -1,7 +1,7 @@
 %% SAS_LATERAL
 clc
 clear all 
-close all 
+%close all 
 %% Metemos todos los datos
 % Cambios de unidades
 ft2m = 0.3048;      % ft a m
@@ -50,47 +50,8 @@ p.Cl_deltaA = 0.156; p.Cl_deltaR = -0.0106;
 p.Cy_deltaA = 0; p.Cy_deltaR = -0.144; 
 p.Cn_deltaA = -0.0012 ; p.Cn_deltaR = 0.0758;
 
-%% Direct link
-FT_lat = FT_lat_function_elegante(p);
-KDL_pDeltaA = 1/FT_lat.fact.deltaA_phi.K;
-
-%% Actuadores EMA (Electro-Mechanical Actuator)
-Lc = 4.5e-3; Rc = 0.64; tauc = Lc/Rc; %Propiedades eléctricas
-Kmv = 0.0426; Jm= 3.36e-3; taum = Jm/Kmv; %Propiedades mecánicas
-Ge = tf([1/tauc],[1,1/tauc]); %Delay eléctrico ~ 7ms
-Gm = tf([1/taum],[1,1/taum]); %Delay mecánico ~ 80ms
-G_act = tf([1],[tauc+taum,1]); %Delay eléctrico + mecánico // Equivalente a Ge*Gm
-
-figure(1); bode(G_act); 
-figure(2); step(G_act);
-%Opción B: Delay puro de wn = 20rad/s (Literatura)
-%H = tf([1],[1/20,1])
-
-%% Sensores
-%Sensor de beta --> Veleta
-Delay_dist = 0.65; %m
-V_wind_tunnel = 10; %m/s
-delay_vane = Delay_dist/V_wind_tunnel; %s
-
-[num_vane,den_vane] = pade(delay_vane,2); %Aproximacion de Pade de orden 2
-G_vane = tf(num_vane,den_vane);
-%G_vane = tf([-delay_vane/2,1],[delay_vane/2,1]); %Forma menos elegante
-
-figure(3); bode(G_vane); 
-figure(4); step(G_vane);
-
-%Sensor de r --> Giróscopo (IMU)
-delay_gyro = 10e-3; %s
-[num_gyro,den_gyro] = pade(delay_gyro,2); %Aproximacion de Pade de orden 2
-G_gyro = tf(num_gyro,den_gyro);
-%G_gyro = tf([-delay_gyro/2,1],[delay_gyro/2,1]); %Forma menos elegante
-
-figure(5); bode(G_gyro); 
-figure(6); step(G_gyro);
-
 %% Análisis de sensibilidad
-%F = linspace(0,5,10);
-F = 0:0.5:5;
+F = linspace(0,5,10);
 % Variamos los coeficientes
 Cn_beta = p.Cn_beta*F;
 Cn_r = p.Cn_r*F;
@@ -102,34 +63,13 @@ for i = 1:length(F)
         FT_sensibilidad(i,j) = FT_lat_function_elegante(p);
         X = real(FT_sensibilidad(i,j).Poles);
         Y = imag(FT_sensibilidad(i,j).Poles);
-
         figure(102)
         scatter(X,Y,'x'); hold on; grid on;     % Representa pero no en zplane
         POLES = [POLES;FT_sensibilidad(i,j).Poles];
     end
 end
-% X_lim = -0.19;
-% Y_lim = 1*sqrt(1 - 0.19^2);
-% xline(X_lim);    yline(Y_lim);
-wnDR_lim = 1;
-chiDR_lim = 0.19
-A = -5:0.1:0.5;
-plot(A,-tan(acos(chiDR_lim)).*A,'k-')
-hold on; 
-viscircles([0 0],wnDR_lim)
-axis([-5 0.5 0 4.5])
-%axis([-18 0 0 18])
 % Representamos
-% figure(101)
-% zplane([],POLES)
-% axis([-10 0.5 -5 5]);grid on
-p.Cn_beta = Cn_beta(3);
-p.Cn_r = Cn_r(11);
-FT_22 = FT_lat_function_elegante(p);
-FT_22.Poles
-wnDR = FT_22.dutchroll.wn;
-chiDR = FT_22.dutchroll.amort;
-
-%% Direct link
-KDL_pDeltaA = 1/FT_22.fact.deltaA_phi.K;
+figure(101)
+zplane([],POLES)
+axis([-10 0.5 -5 5]);grid on
 
