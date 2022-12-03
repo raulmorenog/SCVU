@@ -1,4 +1,4 @@
-%% SAS_LATERAL
+% SAS_LATERAL
 clc
 clear all 
 %close all 
