@@ -103,9 +103,9 @@ realPole = []; realwn = []; realamort = [];
 imagPole = []; imagwn = []; imagamort = [];
 for i = 1:length(Poles)
     if (imag(Poles(i)) == 0)
-        realPole = [realPole; Poles(i)];
-        realwn = [realwn; wn(i)];
-        realamort = [realamort; amort(i)];
+        realPole = [ realPole; Poles(i)];
+        realwn = wn(i);
+        realamort = amort(i);
     else
         imagPole = [imagPole; Poles(i)];
         imagwn = [imagwn; wn(i)];
@@ -126,4 +126,3 @@ FT_lat.dutchroll.wn = imagwn(1);
 FT_lat.dutchroll.period = 2*pi/FT_lat.dutchroll.wn;
 FT_lat.dutchroll.amort = imagamort(1);
 FT_lat.dutchroll.t12 = -log(2)/real(FT_lat.dutchroll.poles(1)); 
-

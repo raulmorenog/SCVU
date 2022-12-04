@@ -104,8 +104,8 @@ for i = 1:length(F)
         s.Cn_r = Cn_r(j);
         FT_sensibilidad(i,j) = FT_lat_function_elegante(s);
         %Representamos los polos para el barrido de coeficientes
-        X = [X;real(FT_sensibilidad(i,j).Poles)];
-        Y = [Y;imag(FT_sensibilidad(i,j).Poles)];
+        X = [X;real(FT_sensibilidad(i,j).dutchroll.poles)];
+        Y = [Y;imag(FT_sensibilidad(i,j).dutchroll.poles)];
         POLES = [POLES;FT_sensibilidad(i,j).Poles];
     end
 end
