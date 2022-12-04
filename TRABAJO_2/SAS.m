@@ -177,7 +177,7 @@ ylabel('$$p \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
 %% SAS 
 %Calculamos todas las FT a mano en lazo cerrado
 k_deltar_beta = 1; k_deltar_r = 1; G_w = 1;     %Variables todavía no definidas
-s_lp = tf([1 0],[1]);
+s_lp = tf([1 0],[1]);   %Defino la s como función de transferencia para la derivada en integral necesaria
 FT_CL.beta_deltaS = (FT_lat.fact.deltaA_beta*G_act*K_DL)/(1 + ...
     G_act*FT_lat.fact.deltaR_beta*(k_deltar_beta*G_vane + s_lp*k_deltar_r*G_gyro*G_w));
 FT_CL.r_deltaS = (FT_lat.fact.deltaA_r*G_act*K_DL)/(1 + ...
