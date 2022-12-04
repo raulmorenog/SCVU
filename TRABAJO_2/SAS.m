@@ -131,14 +131,12 @@ text(-0.75,4.87,text2,'fontsize',14,'interpreter','latex');
 
 xlabel('$$Re$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14); 
 ylabel('$$Im$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14);
-legend([p1 p2 p3],{'Balanceo Holandes','Convergencia balance','Espiral'},...
+legend([p1 p2 p3],{'Balanceo Holandes','Espiral','Convergencia balance'},...
     'location', 'northwest', 'orientation','vertical','interpreter','latex',...
-    'fontsize',14) 
-% Ojo que espiral y convergencia en balance están cambiados (HABRÍA QUE
-% ARREGLARLO)
+    'fontsize',14);
 
-    % Representamos los límites de las normas para elegir los valores target
-    % deseados
+% Representamos los límites de las normas para elegir los valores target
+% deseados
 A = -5:0.1:0.5;
 wnDR_lim = 1;           % Límite de normas
 chiDR_lim = 0.19;       % Límite de normas
@@ -181,6 +179,8 @@ K_DL = 1/FT_conv_balance_1gdl.Kstatic;  % Valor de la ganancia del direct link
 %% Respuesta temporal con el direct link y actuador (compilar este apartado cuando el Simulink esté correcto)
 % Habrá que definir la duración del escalón, es de 20s que lo hemos sacado a
 % ojo de las gráficas de respuesta a escalón.
+
+% Para la respuesta teniendo en cuenta el sistema de 3gdl
 RT_OL_133 = sim('KDL_act_planta_133',40);     % Llamo a modelo de simulink para apartado 1.3.3      
 
 figure(9)
@@ -223,6 +223,30 @@ ylabel('$$p \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
 sgtitle('Variables de estado lateral-direccionales','interpreter','latex',...
     'fontsize',14)
 
+%Si solo tengo en cuenta el modelo de 1gdl
+RT_OL_133_simp = sim('modelo_convergencia_balance_1gdl',40);
+figure(11)
+plot(RT_OL_133_simp.tout,RT_OL_133_simp.deltaA_stick); grid on;   % Deflexión elegida para el stick
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$\delta_{a,stick} \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+
+figure(12)
+subplot(1,2,1)
+plot(RT_OL_133_simp.tout,RT_OL_133_simp.phi); grid on;  % Ángulo de balance
+xticks(0:10:40);
+yticks(0:3:15);
+axis([0 40 0 16]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$\phi \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+%figure(11)
+subplot(1,2,2)
+plot(RT_OL_133_simp.tout,RT_OL_133_simp.p); grid on;   % Velocidad de balance
+xticks(0:10:40);
+yticks(-0.5:0.5:1.5);
+axis([0 40 -0.5 1.5]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$p \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+
 %% SAS 
 %Calculamos todas las FT a mano en lazo cerrado
 k_deltar_beta = 1; k_deltar_r = 1; G_w = 1;     % Variables todavía no definidas
@@ -236,4 +260,5 @@ FT_CL.phi_deltaS = FT_lat.fact.deltaA_phi*G_act*K_DL - G_act*FT_lat.fact.deltaR_
 FT_CL.p_deltaS = FT_lat.fact.deltaA_p*G_act*K_DL - G_act*FT_lat.fact.deltaR_p*...
     (k_deltar_beta*G_vane*FT_CL.beta_deltaS + k_deltar_r*G_gyro*G_w*FT_CL.r_deltaS);
 
+figure(101)
 zplane(FT_CL.phi_deltaS.Z{1, 1},FT_CL.phi_deltaS.P{1, 1}  )     % VAYA MIERDA

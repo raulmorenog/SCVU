@@ -113,12 +113,12 @@ for i = 1:length(Poles)
     end
 end
 FT_lat.Poles = Poles;
-FT_lat.espiral.wn = min(realwn);
-FT_lat.espiral.poles = min(realPole);
+FT_lat.espiral.wn = max(realwn);
+FT_lat.espiral.poles = max(realPole);
 FT_lat.espiral.tau_S = 1/FT_lat.espiral.wn;
 FT_lat.espiral.t12 = -log(2)/real(FT_lat.espiral.poles);
-FT_lat.balance.wn = max(realwn);
-FT_lat.balance.poles = max(realPole);
+FT_lat.balance.wn = min(realwn);
+FT_lat.balance.poles = min(realPole);
 FT_lat.balance.tau_R = 1/FT_lat.balance.wn;
 FT_lat.balance.t12 = -log(2)/real(FT_lat.balance.poles);
 FT_lat.dutchroll.poles = imagPole;
