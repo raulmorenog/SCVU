@@ -182,26 +182,46 @@ K_DL = 1/FT_conv_balance_1gdl.Kstatic;  % Valor de la ganancia del direct link
 % Habrá que definir la duración del escalón, es de 20s que lo hemos sacado a
 % ojo de las gráficas de respuesta a escalón.
 RT_OL_133 = sim('KDL_act_planta_133',40);     % Llamo a modelo de simulink para apartado 1.3.3      
+
 figure(9)
 plot(RT_OL_133.tout,RT_OL_133.deltaA_stick); grid on;   % Deflexión elegida para el stick
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
 ylabel('$$\delta_{a,stick} \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+
 figure(10)
-plot(RT_OL_133.tout,RT_OL_133.beta); grid on;      % Ángulo de resbalamiento
+subplot(2,2,1)
+plot(RT_OL_133.tout,RT_OL_133.beta); grid on;  % Ángulo de resbalamiento
+xticks(0:10:40);
+yticks(-0.1:0.05:0.2);
+axis([0 40 -0.05 0.2]);
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
 ylabel('$$\beta \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
-figure(11)
+%figure(11)
+subplot(2,2,2)
 plot(RT_OL_133.tout,RT_OL_133.phi); grid on;   % Ángulo de balance
+xticks(0:10:40);
+yticks(0:3:15);
+axis([0 40 0 16]);
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
 ylabel('$$\phi \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
-figure(12)
-plot(RT_OL_133.tout,RT_OL_133.r); grid on;   % Velocidad de guiñada
+%figure(12)
+subplot(2,2,3)
+plot(RT_OL_133.tout,RT_OL_133.r); grid on;      % Velocidad de guiñada
+xticks(0:10:40);
+yticks(0:0.2:1.2);
+axis([0 40 -0.1 1.2]);
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
-ylabel('$$r \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
-figure(13)
-plot(RT_OL_133.tout,RT_OL_133.p);  grid on;   % Velocidad de balance
+ylabel('$$r \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
+%figure(13)
+subplot(2,2,4)
+plot(RT_OL_133.tout,RT_OL_133.p);  grid on;     % Velocidad de balance
+xticks(0:10:40);
+yticks(-0.5:0.5:1.5);
+axis([0 40 -0.5 1.5]);
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
-ylabel('$$p \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+ylabel('$$p \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
+sgtitle('Variables de estado lateral-direccionales','interpreter','latex',...
+    'fontsize',14)
 
 %% SAS 
 %Calculamos todas las FT a mano en lazo cerrado
