@@ -55,86 +55,115 @@ p.Cn_deltaA = -0.0012 ; p.Cn_deltaR = 0.0758;
 FT_lat = FT_lat_function_elegante(p);   %Calcularmos las funciones de transferencia de la planta sin aumentar
 
 %% Actuadores EMA (Electro-Mechanical Actuator)
-Lc = 4.5e-3; Rc = 0.64; tauc = Lc/Rc; %Propiedades eléctricas
-Kmv = 0.0426; Jm= 3.36e-3; taum = Jm/Kmv; %Propiedades mecánicas
-Ge = tf([1/tauc],[1,1/tauc]); %Delay eléctrico ~ 7ms
-Gm = tf([1/taum],[1,1/taum]); %Delay mecánico ~ 80ms
-G_act = tf([1],[tauc+taum,1]); %Delay eléctrico + mecánico // Equivalente a Ge*Gm
+Lc = 4.5e-3; Rc = 0.64; tauc = Lc/Rc;       % Propiedades eléctricas
+Kmv = 0.0426; Jm= 3.36e-3; taum = Jm/Kmv;   % Propiedades mecánicas
+Ge = tf([1/tauc],[1,1/tauc]);   % Delay eléctrico ~ 7ms
+Gm = tf([1/taum],[1,1/taum]);   % Delay mecánico ~ 80ms
+G_act = tf([1],[tauc+taum,1]);  %Delay eléctrico + mecánico // Equivalente a Ge*Gm
 
 figure(1); bode(G_act); 
 figure(2); step(G_act);
-%Opción B: Delay puro de wn = 20rad/s (Literatura)
-%H = tf([1],[1/20,1])
+% Opción B: Delay puro de wn = 20rad/s (Literatura)
+% H = tf([1],[1/20,1])
 
 %% Sensores
-%Sensor de beta --> Veleta
-Delay_dist = 0.65; %m
-V_wind_tunnel = 10; %m/s
-delay_vane = Delay_dist/V_wind_tunnel; %s
+    % Sensor de beta --> Veleta
+Delay_dist = 0.65;      % m
+V_wind_tunnel = 10;     % m/s
+delay_vane = Delay_dist/V_wind_tunnel;  % s
 
-[num_vane,den_vane] = pade(delay_vane,2); %Aproximacion de Pade de orden 2
+[num_vane,den_vane] = pade(delay_vane,2); % Aproximacion de Pade de orden 2
 G_vane = tf(num_vane,den_vane);
-%G_vane = tf([-delay_vane/2,1],[delay_vane/2,1]); %Forma menos elegante
+% G_vane = tf([-delay_vane/2,1],[delay_vane/2,1]); % Forma menos elegante
 
 figure(3); bode(G_vane); 
 figure(4); step(G_vane);
 
-%Sensor de r --> Giróscopo (IMU)
+    % Sensor de r --> Giróscopo (IMU)
 delay_gyro = 10e-3; %s
-[num_gyro,den_gyro] = pade(delay_gyro,2); %Aproximacion de Pade de orden 2
+[num_gyro,den_gyro] = pade(delay_gyro,2); % Aproximacion de Pade de orden 2
 G_gyro = tf(num_gyro,den_gyro);
-%G_gyro = tf([-delay_gyro/2,1],[delay_gyro/2,1]); %Forma menos elegante
+% G_gyro = tf([-delay_gyro/2,1],[delay_gyro/2,1]); % Forma menos elegante
 
 figure(5); bode(G_gyro); 
 figure(6); step(G_gyro);
 
 %% Análisis de sensibilidad
-X_p = [real(FT_lat.Poles)]; %Parte real de los polos del la planta libre
-Y_p = [imag(FT_lat.Poles)]; %Parte imaginaria de los polos de la planta libre
-F = 0:0.5:5;    %Valores para los cuales se va a efectuar el barrido
+X_p = [real(FT_lat.Poles)]; % Parte real de los polos del la planta libre
+Y_p = [imag(FT_lat.Poles)]; % Parte imaginaria de los polos de la planta libre
+F = 0:0.5:5;    % Valores para los cuales se va a efectuar el barrido
 % Variamos los coeficientes
 Cn_beta = p.Cn_beta*F;
 Cn_r = p.Cn_r*F;
 POLES = 1e20;
-X = []; Y = [];
+X_dr = []; Y_dr = [];
+X_s = []; Y_s = [];
+X_r = []; Y_r = [];
 for i = 1:length(F)
     for j = 1:length(F)
         s = p;
         s.Cn_beta = Cn_beta(i);
         s.Cn_r = Cn_r(j);
         FT_sensibilidad(i,j) = FT_lat_function_elegante(s);
-        %Representamos los polos para el barrido de coeficientes
-        X = [X;real(FT_sensibilidad(i,j).dutchroll.poles)];
-        Y = [Y;imag(FT_sensibilidad(i,j).dutchroll.poles)];
+        % Representamos los polos para el barrido de coeficientes
+        X_dr = [X_dr;real(FT_sensibilidad(i,j).dutchroll.poles)];
+        Y_dr = [Y_dr;imag(FT_sensibilidad(i,j).dutchroll.poles)];
+        X_s = [X_s;real(FT_sensibilidad(i,j).espiral.poles)];
+        Y_s = [Y_s;imag(FT_sensibilidad(i,j).espiral.poles)];
+        X_r = [X_r;real(FT_sensibilidad(i,j).balance.poles)];
+        Y_r = [Y_r;imag(FT_sensibilidad(i,j).balance.poles)];
         POLES = [POLES;FT_sensibilidad(i,j).Poles];
     end
 end
-Contorno_raices = figure(7); %Entregable
-scatter(X,Y,'x'); 
-hold on;
-scatter(X_p,Y_p,'*','k');grid on; axis([-2.5 0.2 -4.5 4.5]);
-xlabel('$$Re [s^{-1}]$$','interpreter','latex'); ylabel('$$Im [s^{-1}]$$','interpreter','latex');
-wnDR_lim = 1;   %Límite de normas
-chiDR_lim = 0.19;    %Límite de normas
-%Representamos los límites de las normas para elegir los valores target
-%deseados
-A = -5:0.1:0.5;
-figure(8)
-scatter(X,Y,'x'); grid on; axis([-2 1 0 5]);
-hold on
-plot(A,-tan(acos(chiDR_lim)).*A,'k-')
-viscircles([0 0],wnDR_lim)
+Contorno_raices = figure(7);    % Entregable
+p1 = plot(X_dr,Y_dr,'dm','markersize',4,'markerfacecolor','m'); hold on;
+p2 = plot(X_s,Y_s,'dc','markersize',4,'markerfacecolor','c'); hold on;
+p3 = plot(X_r,Y_r,'dg','markersize',4,'markerfacecolor','g'); hold on;
+grid on;
+axis([-4 0.5 -5.5 5.5]);
+xa = [.87 .87]; ya = [.65 .9]; 
+annotation('arrow',xa,ya,'color','k'); hold on;
+xa = [.8 .6]; ya = [.9 .9]; 
+annotation('arrow',xa,ya,'color','k'); hold on;
+text1 = '$$C_{n\beta}$$'; text2 = '$$C_{nr}$$'; 
+text(-0.06,4.8,text1,'fontsize',14,'interpreter','latex'); hold on; 
+text(-0.75,4.87,text2,'fontsize',14,'interpreter','latex');
 
-s.Cn_beta = Cn_beta(3);    %Varlor deseado de Cn_beta
-s.Cn_r = Cn_r(11);         %Valor deseado de Cn_r_target
+xlabel('$$Re$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14); 
+ylabel('$$Im$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14);
+legend([p1 p2 p3],{'Balanceo Holandes','Convergencia balance','Espiral'},...
+    'location', 'northwest', 'orientation','vertical','interpreter','latex',...
+    'fontsize',14) 
+% Ojo que espiral y convergencia en balance están cambiados (HABRÍA QUE
+% ARREGLARLO)
+
+    % Representamos los límites de las normas para elegir los valores target
+    % deseados
+A = -5:0.1:0.5;
+wnDR_lim = 1;           % Límite de normas
+chiDR_lim = 0.19;       % Límite de normas
+figure(8)
+plot(X_dr,Y_dr,'dm','markersize',4,'markerfacecolor','m'); hold on;
+grid on; 
+axis([-2 1 0 5]);
+plot(A,-tan(acos(chiDR_lim)).*A,'k-','linewidth',1); hold on;
+viscircles([0 0],wnDR_lim,'linewidth',1,'color','k'); hold on;
+xline(-0.35,'k-','linewidth',1); hold on;
+
+s.Cn_beta = Cn_beta(3);    % Valor deseado de Cn_beta
+s.Cn_r = Cn_r(11);         % Valor deseado de Cn_r_target
 FT_22 = FT_lat_function_elegante(s);
 X_m = [real(FT_22.Poles)];
 Y_m = [imag(FT_22.Poles)];
-scatter(X_m,Y_m,'o','r')
-scatter(X_p,Y_p,'*','k')
+p1 = plot(X_m(2),Y_m(2),'pr','markersize',10,'markerfacecolor','r'); hold on;
+p2 = plot(X_p(2),Y_p(2),'ob','markersize',8,'markerfacecolor','b'); hold on;
+xlabel('$$Re$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14); 
+ylabel('$$Im$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14);
+legend([p1 p2],{'Punto objetivo','Planta libre'},'location', 'northeast',...
+    'orientation','vertical','interpreter','latex','fontsize',14)
 
-%Elección de las derivadas de estabilidad target y nuevas características
-%del modo
+% Elección de las derivadas de estabilidad target y nuevas características
+% del modo
 Cn_beta_target = Cn_beta(3);
 Cn_r_target = Cn_r(11);
 wnDR_target = FT_22.dutchroll.wn;
@@ -144,40 +173,40 @@ chiDR_target = FT_22.dutchroll.amort;
 % Nos basamos en el modelo de 1gdl como indican las diapos, calculado
 % analíticamente
 FT_conv_balance_1gdl.nofact = tf([p.Cl_deltaA*2*p.Us/p.b],[p.I_xx/(p.rhos*p.Sw*(p.b/2)^3)*(p.b/2/p.Us), -p.Cl_p]);
-%Dimensionalizamos
+% Dimensionalizamos
 FT_conv_balance_1gdl.fact = zpk(FT_conv_balance_1gdl.nofact);
 FT_conv_balance_1gdl.Kstatic = -FT_conv_balance_1gdl.fact.K/FT_conv_balance_1gdl.fact.P{1,1};   %SAco la ganancia estática
-K_DL = 1/FT_conv_balance_1gdl.Kstatic;  %Valor de la ganancia del direct link
+K_DL = 1/FT_conv_balance_1gdl.Kstatic;  % Valor de la ganancia del direct link
 
 %% Respuesta temporal con el direct link y actuador (compilar este apartado cuando el Simulink esté correcto)
-%Habrá que definir la duración del escalón, es de 20s que lo hemos sacado a
-%ojo de las gráficas de respuesta a escalón.
-RT_OL_133 = sim('KDL_act_planta_133',40);     %Llamo a modelo de simulink para apartado 1.3.3      
+% Habrá que definir la duración del escalón, es de 20s que lo hemos sacado a
+% ojo de las gráficas de respuesta a escalón.
+RT_OL_133 = sim('KDL_act_planta_133',40);     % Llamo a modelo de simulink para apartado 1.3.3      
 figure(9)
-plot(RT_OL_133.tout,RT_OL_133.deltaA_stick); grid on;   %Deflexión elegida para el stick
+plot(RT_OL_133.tout,RT_OL_133.deltaA_stick); grid on;   % Deflexión elegida para el stick
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
 ylabel('$$\delta_{a,stick} \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
 figure(10)
-plot(RT_OL_133.tout,RT_OL_133.beta); grid on;      %Ángulo de resbalamiento
+plot(RT_OL_133.tout,RT_OL_133.beta); grid on;      % Ángulo de resbalamiento
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
 ylabel('$$\beta \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
 figure(11)
-plot(RT_OL_133.tout,RT_OL_133.phi); grid on;   %Ángulo de balance
+plot(RT_OL_133.tout,RT_OL_133.phi); grid on;   % Ángulo de balance
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
 ylabel('$$\phi \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
 figure(12)
-plot(RT_OL_133.tout,RT_OL_133.r); grid on;   %Velocidad de guiñada
+plot(RT_OL_133.tout,RT_OL_133.r); grid on;   % Velocidad de guiñada
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
 ylabel('$$r \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
 figure(13)
-plot(RT_OL_133.tout,RT_OL_133.p);  grid on;   %Velocidad de balance
+plot(RT_OL_133.tout,RT_OL_133.p);  grid on;   % Velocidad de balance
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
 ylabel('$$p \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
 
 %% SAS 
 %Calculamos todas las FT a mano en lazo cerrado
-k_deltar_beta = 1; k_deltar_r = 1; G_w = 1;     %Variables todavía no definidas
-s_lp = tf([1 0],[1]);   %Defino la s como función de transferencia para la derivada en integral necesaria
+k_deltar_beta = 1; k_deltar_r = 1; G_w = 1;     % Variables todavía no definidas
+s_lp = tf([1 0],[1]);   % Defino la s como función de transferencia para la derivada en integral necesaria
 FT_CL.beta_deltaS = (FT_lat.fact.deltaA_beta*G_act*K_DL)/(1 + ...
     G_act*FT_lat.fact.deltaR_beta*(k_deltar_beta*G_vane + s_lp*k_deltar_r*G_gyro*G_w));
 FT_CL.r_deltaS = (FT_lat.fact.deltaA_r*G_act*K_DL)/(1 + ...
