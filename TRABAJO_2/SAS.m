@@ -196,7 +196,7 @@ yticks(-0.1:0.05:0.2);
 axis([0 40 -0.05 0.2]);
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
 ylabel('$$\beta \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
-%figure(11)
+
 subplot(2,2,2)
 plot(RT_OL_133.tout,RT_OL_133.phi); grid on;   % Ángulo de balance
 xticks(0:10:40);
@@ -204,7 +204,7 @@ yticks(0:3:15);
 axis([0 40 0 16]);
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
 ylabel('$$\phi \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
-%figure(12)
+
 subplot(2,2,3)
 plot(RT_OL_133.tout,RT_OL_133.r); grid on;      % Velocidad de guiñada
 xticks(0:10:40);
@@ -212,7 +212,7 @@ yticks(0:0.2:1.2);
 axis([0 40 -0.1 1.2]);
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
 ylabel('$$r \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
-%figure(13)
+
 subplot(2,2,4)
 plot(RT_OL_133.tout,RT_OL_133.p);  grid on;     % Velocidad de balance
 xticks(0:10:40);
@@ -220,10 +220,10 @@ yticks(-0.5:0.5:1.5);
 axis([0 40 -0.5 1.5]);
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
 ylabel('$$p \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
-sgtitle('Variables de estado lateral-direccionales','interpreter','latex',...
+sgtitle('Variables de estado para modelo 3 gdl','interpreter','latex',...
     'fontsize',14)
 
-%Si solo tengo en cuenta el modelo de 1gdl
+    % Respuesta con el modelo de 1gdl
 RT_OL_133_simp = sim('modelo_convergencia_balance_1gdl',40);
 figure(11)
 plot(RT_OL_133_simp.tout,RT_OL_133_simp.deltaA_stick); grid on;   % Deflexión elegida para el stick
@@ -233,22 +233,25 @@ ylabel('$$\delta_{a,stick} \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
 figure(12)
 subplot(1,2,1)
 plot(RT_OL_133_simp.tout,RT_OL_133_simp.phi); grid on;  % Ángulo de balance
-xticks(0:10:40);
+xticks(0:5:40);
 yticks(0:3:15);
 axis([0 40 0 16]);
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
 ylabel('$$\phi \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
-%figure(11)
+
 subplot(1,2,2)
 plot(RT_OL_133_simp.tout,RT_OL_133_simp.p); grid on;   % Velocidad de balance
-xticks(0:10:40);
-yticks(-0.5:0.5:1.5);
+xticks(0:5:40);
+yticks(-0.5:0.25:1.5);
 axis([0 40 -0.5 1.5]);
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
-ylabel('$$p \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+ylabel('$$p \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
+sgtitle('Variables de estado para modelo 1 gld','interpreter','latex',...
+    'fontsize',14)
+
 
 %% SAS 
-%Calculamos todas las FT a mano en lazo cerrado
+% Calculamos todas las FT a mano en lazo cerrado
 k_deltar_beta = 1; k_deltar_r = 1; G_w = 1;     % Variables todavía no definidas
 s_lp = tf([1 0],[1]);   % Defino la s como función de transferencia para la derivada en integral necesaria
 FT_CL.beta_deltaS = (FT_lat.fact.deltaA_beta*G_act*K_DL)/(1 + ...
@@ -260,5 +263,68 @@ FT_CL.phi_deltaS = FT_lat.fact.deltaA_phi*G_act*K_DL - G_act*FT_lat.fact.deltaR_
 FT_CL.p_deltaS = FT_lat.fact.deltaA_p*G_act*K_DL - G_act*FT_lat.fact.deltaR_p*...
     (k_deltar_beta*G_vane*FT_CL.beta_deltaS + k_deltar_r*G_gyro*G_w*FT_CL.r_deltaS);
 
-figure(101)
-zplane(FT_CL.phi_deltaS.Z{1, 1},FT_CL.phi_deltaS.P{1, 1}  )     % VAYA MIERDA
+FT_CL.beta_deltaS = minreal(FT_CL.beta_deltaS,0.1);
+FT_CL.r_deltaS = minreal(FT_CL.r_deltaS,0.1);
+FT_CL.phi_deltaS = minreal(FT_CL.phi_deltaS,0.1);
+FT_CL.p_deltaS = minreal(FT_CL.p_deltaS,0.1);
+
+% figure
+% zplane(FT_CL.beta_deltaS.Z{1, 1},FT_CL.beta_deltaS.P{1, 1})   
+% figure
+% zplane(FT_CL.r_deltaS.Z{1, 1},FT_CL.r_deltaS.P{1, 1})  
+% figure
+% zplane(FT_CL.phi_deltaS.Z{1, 1},FT_CL.phi_deltaS.P{1, 1}) 
+% figure
+% zplane(FT_CL.p_deltaS.Z{1, 1},FT_CL.p_deltaS.P{1, 1})  
+
+
+% FT en lazo cerrado Hugo y Raúl
+Ga_deltaA = G_act; Ga_deltaR = G_act;       % FT actuadores
+Gs_r = G_gyro; Gs_beta = G_vane;            % FT sensores
+Gf_r = G_w;                                 % FT filtro wash-out (supuesto 1)
+K_deltaRbeta = 1; K_deltaRr = 1;            % Ganancias de realimentación
+    % Funciones de transferencia
+G_betaDeltaA = FT_lat.fact.deltaA_beta; G_betaDeltaR = FT_lat.fact.deltaR_beta; 
+G_rDeltaA = FT_lat.fact.deltaA_r; G_rDeltaR = FT_lat.fact.deltaR_r; 
+G_phiDeltaA = FT_lat.fact.deltaA_phi; G_phiDeltaR = FT_lat.fact.deltaR_phi; 
+G_pDeltaA = FT_lat.fact.deltaA_p; G_pDeltaR = FT_lat.fact.deltaR_p;
+
+    % Construcción de las FT en lazo cerrado 
+M = 1+Ga_deltaR*G_betaDeltaR*K_deltaRbeta*Gs_beta; 
+num_rDeltaA = K_DL*Ga_deltaA*G_rDeltaA -...
+    Ga_deltaR*Ga_deltaA*K_DL*G_rDeltaR*G_betaDeltaA*Gs_beta*K_deltaRbeta/M;
+den_rDeltaA = 1+Ga_deltaR*Gf_r*Gs_r*K_deltaRr*G_rDeltaR*(1+...
+    K_deltaRbeta*Gs_beta*Ga_deltaR*G_betaDeltaR/M); 
+FT_cl.r_deltaS =  num_rDeltaA/den_rDeltaA;
+
+num_betaDeltaA = K_DL*Ga_deltaA*G_betaDeltaA-...
+    Ga_deltaR*G_betaDeltaR*K_deltaRr*Gf_r*Gs_r*FT_cl.r_deltaS;
+den_betaDeltaA = M; 
+FT_cl.beta_deltaS =  num_betaDeltaA/den_betaDeltaA;
+
+FT_cl.p_deltaS = K_DL*Ga_deltaA*G_pDeltaA-...
+    Ga_deltaR*K_deltaRr*Gf_r*Gs_r*G_pDeltaR*FT_cl.r_deltaS-...
+    Ga_deltaR*K_deltaRbeta*Gs_beta*G_pDeltaR*FT_cl.beta_deltaS; 
+
+FT_cl.phi_deltaS = K_DL*Ga_deltaA*G_phiDeltaA-...
+    Ga_deltaR*K_deltaRr*Gf_r*Gs_r*G_phiDeltaR*FT_cl.r_deltaS-...
+    Ga_deltaR*K_deltaRbeta*Gs_beta*G_phiDeltaR*FT_cl.beta_deltaS;
+
+
+FT_cl.beta_deltaS =  minreal(FT_cl.beta_deltaS,0.1);
+FT_cl.r_deltaS =  minreal(FT_cl.r_deltaS,0.1);
+FT_cl.phi_deltaS =  minreal(FT_cl.phi_deltaS,0.1);
+FT_cl.p_deltaS =  minreal(FT_cl.p_deltaS,0.1);
+
+    % FT en lazo abierto
+FT_ol = minreal(den_rDeltaA);
+
+    % Mapas de polos
+% figure
+% zplane(FT_cl.beta_deltaS.Z{1, 1},FT_cl.beta_deltaS.P{1, 1})
+% figure
+% zplane(FT_cl.r_deltaS.Z{1, 1},FT_cl.r_deltaS.P{1, 1})
+% figure
+% zplane(FT_cl.phi_deltaS.Z{1, 1},FT_cl.phi_deltaS.P{1, 1})
+% figure
+% zplane(FT_cl.p_deltaS.Z{1, 1},FT_cl.p_deltaS.P{1, 1})
