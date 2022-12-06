@@ -252,79 +252,58 @@ sgtitle('Variables de estado para modelo 1 gld','interpreter','latex',...
 
 %% SAS 
 % Calculamos todas las FT a mano en lazo cerrado
-k_deltar_beta = 1; k_deltar_r = 1; G_w = 1;     % Variables todavía no definidas
-s_lp = tf([1 0],[1]);   % Defino la s como función de transferencia para la derivada en integral necesaria
-FT_CL.beta_deltaS = (FT_lat.fact.deltaA_beta*G_act*K_DL)/(1 + ...
-    G_act*FT_lat.fact.deltaR_beta*(k_deltar_beta*G_vane + s_lp*k_deltar_r*G_gyro*G_w));
-FT_CL.r_deltaS = (FT_lat.fact.deltaA_r*G_act*K_DL)/(1 + ...
-    G_act*FT_lat.fact.deltaR_r*(k_deltar_beta*G_vane/s_lp + k_deltar_r*G_gyro*G_w));
-FT_CL.phi_deltaS = FT_lat.fact.deltaA_phi*G_act*K_DL - G_act*FT_lat.fact.deltaR_phi*...
-    (k_deltar_beta*G_vane*FT_CL.beta_deltaS + k_deltar_r*G_gyro*G_w*FT_CL.r_deltaS);
-FT_CL.p_deltaS = FT_lat.fact.deltaA_p*G_act*K_DL - G_act*FT_lat.fact.deltaR_p*...
-    (k_deltar_beta*G_vane*FT_CL.beta_deltaS + k_deltar_r*G_gyro*G_w*FT_CL.r_deltaS);
-
-FT_CL.beta_deltaS = minreal(FT_CL.beta_deltaS,0.1);
-FT_CL.r_deltaS = minreal(FT_CL.r_deltaS,0.1);
-FT_CL.phi_deltaS = minreal(FT_CL.phi_deltaS,0.1);
-FT_CL.p_deltaS = minreal(FT_CL.p_deltaS,0.1);
-
-% figure
-% zplane(FT_CL.beta_deltaS.Z{1, 1},FT_CL.beta_deltaS.P{1, 1})   
-% figure
-% zplane(FT_CL.r_deltaS.Z{1, 1},FT_CL.r_deltaS.P{1, 1})  
-% figure
-% zplane(FT_CL.phi_deltaS.Z{1, 1},FT_CL.phi_deltaS.P{1, 1}) 
-% figure
-% zplane(FT_CL.p_deltaS.Z{1, 1},FT_CL.p_deltaS.P{1, 1})  
-
-
-% FT en lazo cerrado Hugo y Raúl
+    % Funciones de transferencia de los elementos
 Ga_deltaA = G_act; Ga_deltaR = G_act;       % FT actuadores
 Gs_r = G_gyro; Gs_beta = G_vane;            % FT sensores
-Gf_r = G_w;                                 % FT filtro wash-out (supuesto 1)
+Gf_r = 1;                                   % FT filtro wash-out (supuesto 1)
 K_deltaRbeta = 1; K_deltaRr = 1;            % Ganancias de realimentación
-    % Funciones de transferencia
+    
 G_betaDeltaA = FT_lat.fact.deltaA_beta; G_betaDeltaR = FT_lat.fact.deltaR_beta; 
 G_rDeltaA = FT_lat.fact.deltaA_r; G_rDeltaR = FT_lat.fact.deltaR_r; 
 G_phiDeltaA = FT_lat.fact.deltaA_phi; G_phiDeltaR = FT_lat.fact.deltaR_phi; 
 G_pDeltaA = FT_lat.fact.deltaA_p; G_pDeltaR = FT_lat.fact.deltaR_p;
 
     % Construcción de las FT en lazo cerrado 
-M = 1+Ga_deltaR*G_betaDeltaR*K_deltaRbeta*Gs_beta; 
-num_rDeltaA = K_DL*Ga_deltaA*G_rDeltaA -...
-    Ga_deltaR*Ga_deltaA*K_DL*G_rDeltaR*G_betaDeltaA*Gs_beta*K_deltaRbeta/M;
-den_rDeltaA = 1+Ga_deltaR*Gf_r*Gs_r*K_deltaRr*G_rDeltaR*(1+...
-    K_deltaRbeta*Gs_beta*Ga_deltaR*G_betaDeltaR/M); 
-FT_cl.r_deltaS =  num_rDeltaA/den_rDeltaA;
+num_rDeltaA = K_DL*Ga_deltaA*G_rDeltaR+...
+    K_DL*Ga_deltaA*Ga_deltaR*Gs_beta*K_deltaRbeta*(...
+    G_rDeltaA*G_betaDeltaR-G_rDeltaR*G_betaDeltaA);
+den_rDeltaA = 1+Ga_deltaR*(Gs_beta*K_deltaRbeta*G_betaDeltaR+...
+    Gf_r*Gs_r*K_deltaRr*G_rDeltaR); 
+FT_CL.r_deltaS =  num_rDeltaA/den_rDeltaA;
 
-num_betaDeltaA = K_DL*Ga_deltaA*G_betaDeltaA-...
-    Ga_deltaR*G_betaDeltaR*K_deltaRr*Gf_r*Gs_r*FT_cl.r_deltaS;
-den_betaDeltaA = M; 
-FT_cl.beta_deltaS =  num_betaDeltaA/den_betaDeltaA;
+num_betaDeltaA = K_DL*Ga_deltaA*G_betaDeltaA+...
+    K_DL*Ga_deltaA*Ga_deltaR*Gf_r*Gs_r*K_deltaRr*(...
+    G_betaDeltaA*G_rDeltaR-G_betaDeltaR*G_rDeltaA);
+den_betaDeltaA = 1+Ga_deltaR*(Gs_beta*K_deltaRbeta*G_betaDeltaR+...
+    Gf_r*Gs_r*K_deltaRr*G_rDeltaR); 
+FT_CL.beta_deltaS =  num_betaDeltaA/den_betaDeltaA;
 
-FT_cl.p_deltaS = K_DL*Ga_deltaA*G_pDeltaA-...
-    Ga_deltaR*K_deltaRr*Gf_r*Gs_r*G_pDeltaR*FT_cl.r_deltaS-...
-    Ga_deltaR*K_deltaRbeta*Gs_beta*G_pDeltaR*FT_cl.beta_deltaS; 
+FT_CL.p_deltaS = K_DL*Ga_deltaA*G_pDeltaA-...
+    Ga_deltaR*Gf_r*Gs_r*K_deltaRr*G_pDeltaR*FT_CL.r_deltaS-...
+    Ga_deltaR*Gs_beta*K_deltaRbeta*G_pDeltaR*FT_CL.beta_deltaS; 
 
-FT_cl.phi_deltaS = K_DL*Ga_deltaA*G_phiDeltaA-...
-    Ga_deltaR*K_deltaRr*Gf_r*Gs_r*G_phiDeltaR*FT_cl.r_deltaS-...
-    Ga_deltaR*K_deltaRbeta*Gs_beta*G_phiDeltaR*FT_cl.beta_deltaS;
+FT_CL.phi_deltaS = K_DL*Ga_deltaA*G_phiDeltaA-...
+    Ga_deltaR*Gf_r*Gs_r*K_deltaRr*G_phiDeltaR*FT_CL.r_deltaS-...
+    Ga_deltaR*Gs_beta*K_deltaRbeta*G_phiDeltaR*FT_CL.beta_deltaS;
 
 
-FT_cl.beta_deltaS =  minreal(FT_cl.beta_deltaS,0.1);
-FT_cl.r_deltaS =  minreal(FT_cl.r_deltaS,0.1);
-FT_cl.phi_deltaS =  minreal(FT_cl.phi_deltaS,0.1);
-FT_cl.p_deltaS =  minreal(FT_cl.p_deltaS,0.1);
+FT_CL.beta_deltaS =  minreal(FT_CL.beta_deltaS,0.001);
+FT_CL.r_deltaS =  minreal(FT_CL.r_deltaS,0.001);
+FT_CL.phi_deltaS =  minreal(FT_CL.phi_deltaS,0.001);
+FT_CL.p_deltaS =  minreal(FT_CL.p_deltaS,0.001);
 
     % FT en lazo abierto
-FT_ol = minreal(den_rDeltaA);
+FT_OL = minreal(Ga_deltaR*(Gs_beta*K_deltaRbeta*G_betaDeltaR+...
+    Gf_r*Gs_r*K_deltaRr*G_rDeltaR));
 
     % Mapas de polos
 % figure
-% zplane(FT_cl.beta_deltaS.Z{1, 1},FT_cl.beta_deltaS.P{1, 1})
+% zplane(FT_CL.beta_deltaS.Z{1, 1},FT_CL.beta_deltaS.P{1, 1})
 % figure
-% zplane(FT_cl.r_deltaS.Z{1, 1},FT_cl.r_deltaS.P{1, 1})
+% zplane(FT_CL.r_deltaS.Z{1, 1},FT_CL.r_deltaS.P{1, 1})
 % figure
-% zplane(FT_cl.phi_deltaS.Z{1, 1},FT_cl.phi_deltaS.P{1, 1})
+% zplane(FT_CL.phi_deltaS.Z{1, 1},FT_CL.phi_deltaS.P{1, 1})
 % figure
-% zplane(FT_cl.p_deltaS.Z{1, 1},FT_cl.p_deltaS.P{1, 1})
+% zplane(FT_CL.p_deltaS.Z{1, 1},FT_CL.p_deltaS.P{1, 1})
+% figure
+% zplane(FT_OL.Z{1, 1},FT_OL.P{1, 1})
