@@ -148,8 +148,10 @@ plot(A,-tan(acos(chiDR_lim)).*A,'k-','linewidth',1); hold on;
 viscircles([0 0],wnDR_lim,'linewidth',1,'color','k'); hold on;
 xline(-0.35,'k-','linewidth',1); hold on;
 
-s.Cn_beta = Cn_beta(3);    % Valor deseado de Cn_beta
+s.Cn_beta = Cn_beta(4);    % Valor deseado de Cn_beta
 s.Cn_r = Cn_r(11);         % Valor deseado de Cn_r_target
+F_beta = s.Cn_beta/p.Cn_beta ;
+F_r = s.Cn_r/p.Cn_r;
 FT_22 = FT_lat_function_elegante(s);
 X_m = [real(FT_22.Poles)];
 Y_m = [imag(FT_22.Poles)];
@@ -256,7 +258,7 @@ sgtitle('Variables de estado para modelo 1 gld','interpreter','latex',...
 Ga_deltaA = G_act; Ga_deltaR = G_act;       % FT actuadores
 Gs_r = G_gyro; Gs_beta = G_vane;            % FT sensores
 Gf_r = 1;                                   % FT filtro wash-out (supuesto 1)
-K_deltaRbeta = 1; K_deltaRr = 1;            % Ganancias de realimentación
+K_deltaRbeta = -(F_beta-1)*p.Cn_beta/p.Cn_deltaR; K_deltaRr = -(F_r-1)*(p.Cn_r/p.Cn_deltaR)*(0.5*p.b/p.Us);            % Ganancias de realimentación
     
 G_betaDeltaA = FT_lat.fact.deltaA_beta; G_betaDeltaR = FT_lat.fact.deltaR_beta; 
 G_rDeltaA = FT_lat.fact.deltaA_r; G_rDeltaR = FT_lat.fact.deltaR_r; 
@@ -296,14 +298,16 @@ FT_CL.p_deltaS =  minreal(FT_CL.p_deltaS,0.001);
 FT_OL = minreal(Ga_deltaR*(Gs_beta*K_deltaRbeta*G_betaDeltaR+...
     Gf_r*Gs_r*K_deltaRr*G_rDeltaR));
 
-    % Mapas de polos
-% figure
-% zplane(FT_CL.beta_deltaS.Z{1, 1},FT_CL.beta_deltaS.P{1, 1})
-% figure
-% zplane(FT_CL.r_deltaS.Z{1, 1},FT_CL.r_deltaS.P{1, 1})
-% figure
-% zplane(FT_CL.phi_deltaS.Z{1, 1},FT_CL.phi_deltaS.P{1, 1})
-% figure
-% zplane(FT_CL.p_deltaS.Z{1, 1},FT_CL.p_deltaS.P{1, 1})
-% figure
-% zplane(FT_OL.Z{1, 1},FT_OL.P{1, 1})
+% Gráfica Planta Aumentada vs Planta Libre vs Objetivo
+figure (13)
+X_SAS = real(FT_CL.p_deltaS.P{1, 1});
+Y_SAS = imag(FT_CL.p_deltaS.P{1, 1});
+X_p = [real(FT_lat.Poles)]; % Parte real de los polos del la planta libre
+Y_p = [imag(FT_lat.Poles)]; % Parte imaginaria de los polos de la planta libre
+X_m = [real(FT_22.Poles)];
+Y_m = [imag(FT_22.Poles)];
+plot(X_SAS,Y_SAS,'or'); hold on
+plot(X_p,Y_p,'ob'); hold on 
+plot(X_m,Y_m,'og');  
+legend('Planta Aumentada','Planta Libre','Objetivo')
+grid on
