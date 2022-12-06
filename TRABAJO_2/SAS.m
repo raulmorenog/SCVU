@@ -125,7 +125,7 @@ xa = [.87 .87]; ya = [.65 .9];
 annotation('arrow',xa,ya,'color','k'); hold on;
 xa = [.8 .6]; ya = [.9 .9]; 
 annotation('arrow',xa,ya,'color','k'); hold on;
-text1 = '$$C_{n\beta}$$'; text2 = '$$C_{nr}$$'; 
+text1 = '$$C_{n\beta}$$'; text2 = '$$|C_{nr}|$$'; 
 text(-0.06,4.8,text1,'fontsize',14,'interpreter','latex'); hold on; 
 text(-0.75,4.87,text2,'fontsize',14,'interpreter','latex');
 
