@@ -164,7 +164,7 @@ legend([p1 p2],{'Punto objetivo','Planta libre'},'location', 'northeast',...
 
 % Elección de las derivadas de estabilidad target y nuevas características
 % del modo
-Cn_beta_target = Cn_beta(3);
+Cn_beta_target = Cn_beta(4);
 Cn_r_target = Cn_r(11);
 wnDR_target = FT_22.dutchroll.wn;
 chiDR_target = FT_22.dutchroll.amort;
