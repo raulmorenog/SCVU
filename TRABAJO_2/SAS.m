@@ -261,7 +261,7 @@ X_s = []; Y_s = [];
 X_r = []; Y_r = [];
 for i = 1:length(F_beta)
     for j = 1:length(F_r)
-        [SAS_CL(i,j),SAS_OL(i,j)] = Aumented(F_beta(i),F_r(j),G_act,G_gyro,G_vane,K_DL,p,FT_lat);
+        [SAS_CL(i,j),SAS_OL(i,j)] = Aumented_FT(F_beta(i),F_r(j),G_act,G_gyro,G_vane,K_DL,p,FT_lat);
         % Representamos los polos para el barrido de coeficientes
         X_dr = [X_dr;real(SAS_CL(i,j).p_deltaS.P{1,1}(end-1:end))];
         Y_dr = [Y_dr;imag(SAS_CL(i,j).p_deltaS.P{1,1}(end-1:end))];
@@ -271,7 +271,7 @@ for i = 1:length(F_beta)
 %         Y_r = [Y_r;imag(SAS_CL(i,j).p_deltaS.P{1,1}(3))];
     end
 end
-barrido_ganancias = figure(13);    % Entregable
+barrido_ganancias = figure(13);    % Entregable 13
 p1 = plot(X_dr,Y_dr,'dm','markersize',4,'markerfacecolor','m'); hold on;
 p2 = plot(X_s,Y_s,'dc','markersize',4,'markerfacecolor','c'); hold on;
 p3 = plot(X_r,Y_r,'dg','markersize',4,'markerfacecolor','g'); hold on;
@@ -293,7 +293,8 @@ legend([p1 p2 p3],{'Balanceo Holandes','Espiral','Convergencia balance'},...
 title('Barrido en ganancias')
 
 % Comparación Planta Aumentada vs Planta Libre vs Objetivo
-[SAS_CL_target,SAS_OL_target] = Aumented(F_beta_target,F_r_target,G_act,G_gyro,G_vane,K_DL,p,FT_lat); 
+[SAS_CL_target,SAS_OL_target] = Aumented_FT(F_beta_target,F_r_target,...
+    G_act,G_gyro,G_vane,K_DL,p,FT_lat); 
 
 figure (14)
 X_SAS = real(SAS_CL_target.p_deltaS.P{1,1}); % Parte real de los polos del la planta aumentada
@@ -309,12 +310,34 @@ title('Comparación entre polos')
 legend('Planta Aumentada','Objetivo','Planta Libre')
 grid on
 
+% Comparación de los polos del Dutch Roll 
+figure(15)
+plot(X_dr,Y_dr,'dm','markersize',4,'markerfacecolor','m'); hold on;
+plot(X_SAS,Y_SAS,'dg','markersize',4,'markerfacecolor','g')
+grid on; 
+axis([-2 1 0 5]);
+plot(A,-tan(acos(chiDR_lim)).*A,'k-','linewidth',1); hold on;
+viscircles([0 0],wnDR_lim,'linewidth',1,'color','k'); hold on;
+xline(-0.35,'k-','linewidth',1); hold on;
+
+s.Cn_beta = Cn_beta(4);    % Valor deseado de Cn_beta !!!!!!!
+s.Cn_r = Cn_r(11);         % Valor deseado de Cn_r_target !!!!!!!
+FT_22 = FT_lat_function_elegante(s);
+X_m = [real(FT_22.Poles)];
+Y_m = [imag(FT_22.Poles)];
+p1 = plot(X_m(2),Y_m(2),'pr','markersize',10,'markerfacecolor','r'); hold on;
+p2 = plot(X_p(2),Y_p(2),'ob','markersize',8,'markerfacecolor','b'); hold on;
+xlabel('$$Re$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14); 
+ylabel('$$Im$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14);
+legend([p1 p2],{'Punto objetivo','Planta libre'},'location', 'northeast',...
+    'orientation','vertical','interpreter','latex','fontsize',14)
+
 %Diagrama de Nichols
-[modulo_bode fase_bode] = bode(SAS_OL_target,{10^-3,10^4});
+[modulo_bode, fase_bode] = bode(SAS_OL_target,{10^-3,10^4});
 modulodB_bode = squeeze(20*log10(modulo_bode));
 faseDeg_bode = squeeze(fase_bode);
 
-figure(15)
+figure(16)
 plot([180 180+45],[6 0],'r-'); hold on
 plot([180 180+45],[-6 0],'r-'); hold on
 plot([180 180-45],[6 0],'r-'); hold on
@@ -343,13 +366,13 @@ Margen_Ganancia = 20*log10(Gm);
 Margen_Fase = Pm;
 
 %Diagrama de Bode (Para checkear, no lo pide)
-figure(16);
+figure(17);
 bode(SAS_OL_target,'b-')
 grid on; hold all;
 margin(SAS_OL_target,{10^-5,10^2})
 set(gcf,'Color',[1 1 1])
 
-
+%% Filtro wash-out
 
 
 %--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------%
@@ -357,50 +380,5 @@ set(gcf,'Color',[1 1 1])
 
 
 
-function [FT_CL,FT_OL] = Aumented(F_beta,F_r,G_act,G_gyro,G_vane,K_DL,p,FT_lat) %FUNCION PARA CALCULAR LAS FT DE LAS PLANTA AUMENTADA
-    % Calculamos todas las FT a mano en lazo cerrado
-        % Funciones de transferencia de los elementos
-    Ga_deltaA = G_act; Ga_deltaR = G_act;       % FT actuadores
-    Gs_r = G_gyro; Gs_beta = G_vane;            % FT sensores
-    Gf_r = 1;                                   % FT filtro wash-out (supuesto 1)
-    K_deltaRbeta = -(F_beta-1)*p.Cn_beta/p.Cn_deltaR; K_deltaRr = -(F_r-1)*(p.Cn_r/p.Cn_deltaR)*(0.5*p.b/p.Us);            % Ganancias de realimentación
-        
-    G_betaDeltaA = FT_lat.fact.deltaA_beta; G_betaDeltaR = FT_lat.fact.deltaR_beta; 
-    G_rDeltaA = FT_lat.fact.deltaA_r; G_rDeltaR = FT_lat.fact.deltaR_r; 
-    G_phiDeltaA = FT_lat.fact.deltaA_phi; G_phiDeltaR = FT_lat.fact.deltaR_phi; 
-    G_pDeltaA = FT_lat.fact.deltaA_p; G_pDeltaR = FT_lat.fact.deltaR_p;
-    
-        % Construcción de las FT en lazo cerrado 
-    num_rDeltaA = K_DL*Ga_deltaA*G_rDeltaR+...
-        K_DL*Ga_deltaA*Ga_deltaR*Gs_beta*K_deltaRbeta*(...
-        G_rDeltaA*G_betaDeltaR-G_rDeltaR*G_betaDeltaA);
-    den_rDeltaA = 1+Ga_deltaR*(Gs_beta*K_deltaRbeta*G_betaDeltaR+...
-        Gf_r*Gs_r*K_deltaRr*G_rDeltaR); 
-    FT_CL.r_deltaS =  num_rDeltaA/den_rDeltaA;
-    
-    num_betaDeltaA = K_DL*Ga_deltaA*G_betaDeltaA+...
-        K_DL*Ga_deltaA*Ga_deltaR*Gf_r*Gs_r*K_deltaRr*(...
-        G_betaDeltaA*G_rDeltaR-G_betaDeltaR*G_rDeltaA);
-    den_betaDeltaA = 1+Ga_deltaR*(Gs_beta*K_deltaRbeta*G_betaDeltaR+...
-        Gf_r*Gs_r*K_deltaRr*G_rDeltaR); 
-    FT_CL.beta_deltaS =  num_betaDeltaA/den_betaDeltaA;
-    
-    FT_CL.p_deltaS = K_DL*Ga_deltaA*G_pDeltaA-...
-        Ga_deltaR*Gf_r*Gs_r*K_deltaRr*G_pDeltaR*FT_CL.r_deltaS-...
-        Ga_deltaR*Gs_beta*K_deltaRbeta*G_pDeltaR*FT_CL.beta_deltaS; 
-    
-    FT_CL.phi_deltaS = K_DL*Ga_deltaA*G_phiDeltaA-...
-        Ga_deltaR*Gf_r*Gs_r*K_deltaRr*G_phiDeltaR*FT_CL.r_deltaS-...
-        Ga_deltaR*Gs_beta*K_deltaRbeta*G_phiDeltaR*FT_CL.beta_deltaS;
-    
-    
-    FT_CL.beta_deltaS =  minreal(FT_CL.beta_deltaS,0.001);
-    FT_CL.r_deltaS =  minreal(FT_CL.r_deltaS,0.001);
-    FT_CL.phi_deltaS =  minreal(FT_CL.phi_deltaS,0.001);
-    FT_CL.p_deltaS =  minreal(FT_CL.p_deltaS,0.001);
-    
-        % FT en lazo abierto
-    FT_OL = minreal(Ga_deltaR*(Gs_beta*K_deltaRbeta*G_betaDeltaR+...
-        Gf_r*Gs_r*K_deltaRr*G_rDeltaR));
-end
+
 
