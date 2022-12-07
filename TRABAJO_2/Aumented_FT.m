@@ -1,5 +1,5 @@
 %% Función que calcula las FT del sistema realimentado
-function [FT_CL,FT_OL] = Aumented_FT(F_beta,F_r,G_act,G_gyro,G_vane,K_DL,p,FT_lat)
+function [FT_CL, FT_OL] = Aumented_FT(F_beta,F_r,G_act,G_gyro,G_vane,K_DL,p,FT_lat)
     % Calculamos todas las FT a mano en lazo cerrado
         % Funciones de transferencia de los elementos
     Ga_deltaA = G_act; Ga_deltaR = G_act;       % FT actuadores
@@ -13,8 +13,7 @@ function [FT_CL,FT_OL] = Aumented_FT(F_beta,F_r,G_act,G_gyro,G_vane,K_DL,p,FT_la
     % Reasignamos a nuevas variables las FT de la planta libre
     G_betaDeltaA = FT_lat.fact.deltaA_beta; 
     G_betaDeltaR = FT_lat.fact.deltaR_beta; 
-    G_rDeltaA = 
-    FT_lat.fact.deltaA_r; 
+    G_rDeltaA = FT_lat.fact.deltaA_r; 
     G_rDeltaR = FT_lat.fact.deltaR_r; 
     G_phiDeltaA = FT_lat.fact.deltaA_phi; 
     G_phiDeltaR = FT_lat.fact.deltaR_phi; 

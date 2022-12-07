@@ -261,7 +261,8 @@ X_s = []; Y_s = [];
 X_r = []; Y_r = [];
 for i = 1:length(F_beta)
     for j = 1:length(F_r)
-        [SAS_CL(i,j),SAS_OL(i,j)] = Aumented_FT(F_beta(i),F_r(j),G_act,G_gyro,G_vane,K_DL,p,FT_lat);
+        [SAS_CL(i,j), SAS_OL(i,j)] = Aumented_FT(F_beta(i), F_r(j), G_act,...
+            G_gyro, G_vane, K_DL, p, FT_lat);
         % Representamos los polos para el barrido de coeficientes
         X_dr = [X_dr;real(SAS_CL(i,j).p_deltaS.P{1,1}(end-1:end))];
         Y_dr = [Y_dr;imag(SAS_CL(i,j).p_deltaS.P{1,1}(end-1:end))];
