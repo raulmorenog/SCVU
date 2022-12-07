@@ -300,6 +300,8 @@ title('Barrido en ganancias')
 figure(14)
 X_SAS = real(SAS_CL_target.p_deltaS.P{1,1}); % Parte real de los polos del la planta aumentada
 Y_SAS = imag(SAS_CL_target.p_deltaS.P{1,1}); % Parte imaginaria de los polos del la planta aumentada
+% X_SAS = real(SAS_OL_target.P{1,1});
+% Y_SAS = imag(SAS_OL_target.P{1,1});
 X_p = [real(FT_lat.Poles)]; % Parte real de los polos del la planta libre
 Y_p = [imag(FT_lat.Poles)]; % Parte imaginaria de los polos de la planta libre
 X_m = [real(FT_22.Poles)]; % Parte real de los polos del la planta objetivo
