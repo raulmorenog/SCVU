@@ -184,6 +184,7 @@ K_DL = 1/FT_conv_balance_1gdl.Kstatic;  % Valor de la ganancia del direct link
 
 % Para la respuesta teniendo en cuenta el sistema de 3gdl
 RT_OL_133 = sim('KDL_act_planta_133',40);     % Llamo a modelo de simulink para apartado 1.3.3      
+[rise_time133, time_delay133] = rise_delay(RT_OL_133.tout,RT_OL_133.phi);
 
 figure(9)
 plot(RT_OL_133.tout,RT_OL_133.deltaA_stick); grid on;   % Deflexión elegida para el stick
@@ -227,6 +228,9 @@ sgtitle('Variables de estado para modelo 3 gdl','interpreter','latex',...
 
     % Respuesta con el modelo de 1gdl
 RT_OL_133_simp = sim('modelo_convergencia_balance_1gdl',40);
+[rise_time133_simp, time_delay133_simp] = rise_delay(RT_OL_133_simp.tout,...
+    RT_OL_133_simp.phi);
+
 figure(11)
 plot(RT_OL_133_simp.tout,RT_OL_133_simp.deltaA_stick); grid on;   % Deflexión elegida para el stick
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
@@ -465,7 +469,7 @@ title(['Diagrama de Nichols, variaciones de $[k_{\delta_r \beta}]_P$'...
 
 
 %% Filtro wash-out
-F_beta_target = F_beta_target; %Ganancias de realimentación seleccionadas, son las seleccionadas en el barrido inicial pero se pueden cambiar.
+F_beta_target = F_beta_target; % Ganancias de realimentación seleccionadas, son las seleccionadas en el barrido inicial pero se pueden cambiar.
 F_r_target = F_r_target;
 
 wDR = FT_lat.dutchroll.wn;
@@ -477,7 +481,7 @@ for i=1:length(w_washout_sens)
     G_act,G_gyro,G_vane,G_washout_sens,K_DL,p,FT_lat);
 end
 
-%Lugar de las raíces
+% Lugar de las raíces
 figure(20)
 X_wo_low = real(SAS_CL_wo(1).p_deltaS.P{1,1}); 
 Y_wo_low = imag(SAS_CL_wo(1).p_deltaS.P{1,1});
@@ -494,7 +498,7 @@ legend('$\omega_{wo} = \omega_{DR}/10$','$\omega_{wo} = \omega_{DR}$',...
     '$\omega_{wo} = 10\omega_{DR}$','interpreter','latex','fontsize',12)
 grid on
 
-%Diagrama de Nichols
+% Diagrama de Nichols
 figure(21)
 marker = {'b','m','g','y'};
 
@@ -529,13 +533,15 @@ legend('$$\omega_{wo} = \omega_{DR}/10$$','','$$\omega_{wo} = \omega_{DR}$$','',
 grid on
 title('Diagrama de Nichols, Planta Aumentada Open Loop')
 
-%Respuesta a escalón de 20 segundos
+% Respuesta a escalón de 20 segundos
 K_deltaRbeta = -(F_beta_target - 1)*p.Cn_beta/p.Cn_deltaR; 
 K_deltaRr = -(F_r_target - 1)*(p.Cn_r/p.Cn_deltaR)*(0.5*p.b/p.Us);
 
 for i=1:length(w_washout_sens)
     G_washout = tf([1,0],[1,w_washout_sens(i)]);
-    RT_SAS_135(i) = sim('modelo_SAS_134',40)
+    RT_SAS_135(i) = sim('modelo_SAS_134',40);
+    [rise_time135(i), time_delay135(i)] = rise_delay(RT_SAS_135(i).tout,...
+    RT_SAS_135(i).phi);
 end
 
 figure(22)                              % wo = wDR/10
@@ -678,11 +684,13 @@ ylabel('$$p \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
 sgtitle('$\omega_{wo} = 0$','interpreter','latex',...
     'fontsize',14)
 
-%Elección wo = 0.8*wDR
+% Elección wo = 0.8*wDR
 wo_elegido = 0.8*wDR;
 
 G_washout = tf([1,0],[1,wo_elegido]);
-RT_SAS_135_elegido = sim('modelo_SAS_134',40) %Respueta temporal a las FT con wo=0.8*wDR
+RT_SAS_135_elegido = sim('modelo_SAS_134',40); % Respueta temporal a las FT con wo=0.8*wDR
+[rise_time135_elegido, time_delay135_elegido] = rise_delay(RT_SAS_135_elegido.tout,...
+    RT_SAS_135_elegido.phi);
 
 figure(26)                              
 subplot(2,2,1)
