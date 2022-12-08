@@ -327,7 +327,7 @@ grid on;
 axis([-2 1 0 5]);
 plot(A,-tan(acos(chiDR_lim)).*A,'k-','linewidth',1); hold on;
 viscircles([0 0],wnDR_lim,'linewidth',1,'color','k'); hold on;
-xline(-0.35,'k-','linewidth',1); hold on;
+xline(0,'k-','linewidth',1); hold on;
 
 s.Cn_beta = Cn_beta(4);    % Valor deseado de Cn_beta !!!!!!!
 s.Cn_r = Cn_r(11);         % Valor deseado de Cn_r_target !!!!!!!
@@ -386,22 +386,22 @@ set(gcf,'Color',[1 1 1])
 k_deltaRbeta = -(F_beta_target - 1)*p.Cn_beta/p.Cn_deltaR;
 k_deltaRr = -(F_r_target - 1)*(p.Cn_r/p.Cn_deltaR)*(0.5*p.b/p.Us);
 
-figure(18)
-k_ = zeros(11,1); 
+a = [];
+figure(18) 
 for i = 4;    % F_beta_target
-    for j = 1:2:length(F_r)
+    for j = [1,5,11]  %1:2:length(F_r)
         [modulo_bode, fase_bode] = bode(SAS_OL(i,j),{10^-3,10^4});
         modulodB_bode = squeeze(20*log10(modulo_bode));
         faseDeg_bode = squeeze(fase_bode);
         
         plot(faseDeg_bode,modulodB_bode,'Linewidth',1)
         grid on; hold on; 
-        k_(j) = round(-(F_r(j)-1)*(p.Cn_r/p.Cn_deltaR)*(0.5*p.b/p.Us),3);
+        k_ = round(-(F_r(j)-1)*(p.Cn_r/p.Cn_deltaR)*(0.5*p.b/p.Us),3);
+        a = [a,k_];
     end
     
 end
-a = k_(1:2:end);
-for i = 1:6
+for i = 1:3
     lg{i} = ['$[K_{\delta_r r}]_P$ = ',num2str(a(i))];
 end
 plot([180 180+45],[6 0],'r-'); hold on
@@ -419,27 +419,28 @@ legend(lg,'interpreter','latex','fontsize',12,'location','best')
 hold on; set(gca,'XTick',[-720:45:720]); % Grados
 hold on; set(gca,'YTick',[-150:10:100]); % dB
 set(gcf,'Color',[1 1 1])
-axis([-180 720 -90 90])
+axis([90 630 -90 90])
 grid on
 title(['Diagrama de Nichols, variaciones de $[k_{\delta_r r}]_P$'...
     ' para $[k_{\delta_r \beta}]_P$ =',num2str(round(k_deltaRbeta,3))],...
     'interpreter','latex','fontsize',12)
 
+a = [];
 figure(19)
 for j = 11;    % F_r_target
-    for i = 1:2:length(F_beta)
+    for i = [1,4,7]   %1:2:length(F_beta)
         [modulo_bode, fase_bode] = bode(SAS_OL(i,j),{10^-3,10^4});
         modulodB_bode = squeeze(20*log10(modulo_bode));
         faseDeg_bode = squeeze(fase_bode);
         
         plot(faseDeg_bode,modulodB_bode,'Linewidth',1)
         grid on; hold on; 
-        k_(i) = -(F_beta(i)-1)*p.Cn_beta/p.Cn_deltaR;
+        k_ = -(F_beta(i)-1)*p.Cn_beta/p.Cn_deltaR;
+        a = [a,k_];
     end
 end
-a = k_(1:2:end);
-for i = 1:6
-    lg{i} = ['$[K_{\delta_r r}]_P$ = ',num2str(round(a(i),3))];
+for i = 1:3
+    lg_2{i} = ['$[K_{\delta_r \beta}]_P$ = ',num2str(round(a(i),3))];
 end
 plot([180 180+45],[6 0],'r-'); hold on
 plot([180 180+45],[-6 0],'r-'); hold on
@@ -450,13 +451,13 @@ plot([-180 -180],[0 100],'k-','Linewidth',2)
 plot([540 540],[0 100],'k-','Linewidth',2)
 xlabel('Open-Loop Phase [deg]'); 
 ylabel('Open-Loop Gain [dB]');
-legend(lg,'interpreter','latex','fontsize',12,'location','best')
+legend(lg_2,'interpreter','latex','fontsize',12,'location','best')
 
 % Ticks de separacion
 hold on; set(gca,'XTick',[-720:45:720]); % Grados
 hold on; set(gca,'YTick',[-150:10:100]); % dB
 set(gcf,'Color',[1 1 1])
-axis([-180 720 -90 90])
+axis([90 630 -90 90])
 grid on
 title(['Diagrama de Nichols, variaciones de $[k_{\delta_r \beta}]_P$'...
     ' para $[k_{\delta_r r}]_P$ =',num2str(round(k_deltaRr,3))],...
