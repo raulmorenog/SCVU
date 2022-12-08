@@ -253,13 +253,13 @@ sgtitle('Variables de estado para modelo 1 gld','interpreter','latex',...
 
 
 %% SAS 
+G_washout = 1;
 % Barrido en ganancias
 F_beta = 0:0.5:5;
 F_r = 0:0.5:5;
 X_dr = []; Y_dr = [];
 X_s = []; Y_s = [];
 X_r = []; Y_r = [];
-G_washout = 1;
 for i = 1:length(F_beta)
     for j = 1:length(F_r)
         [SAS_CL(i,j), SAS_OL(i,j)] = Aumented_FT(F_beta(i), F_r(j), G_act,...
@@ -292,7 +292,7 @@ ylabel('$$Im$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14);
 legend([p1 p2 p3],{'Balanceo Holandes','Espiral','Convergencia balance'},...
     'location', 'northwest', 'orientation','vertical','interpreter','latex',...
     'fontsize',14);
-title('Barrido en ganancias')
+sgtitle('Barrido en ganancias','interpreter','latex','fontsize',14)
 
 % Comparación Planta Aumentada vs Planta Libre vs Objetivo
 [SAS_CL_target,SAS_OL_target] = Aumented_FT(F_beta_target,F_r_target,...
@@ -305,14 +305,15 @@ Y_SAS = imag(SAS_CL_target.p_deltaS.P{1,1}); % Parte imaginaria de los polos del
 % Y_SAS = imag(SAS_OL_target.P{1,1});
 X_p = [real(FT_lat.Poles)]; % Parte real de los polos del la planta libre
 Y_p = [imag(FT_lat.Poles)]; % Parte imaginaria de los polos de la planta libre
-X_m = [real(FT_22.Poles)]; % Parte real de los polos del la planta objetivo
-Y_m = [imag(FT_22.Poles)]; % Parte imaginaria de los polos de la planta objetivo
-plot(X_SAS,Y_SAS,'or'); hold on
+X_m = [real(FT_22.Poles)];  % Parte real de los polos del la planta objetivo
+Y_m = [imag(FT_22.Poles)];  % Parte imaginaria de los polos de la planta objetivo
+plot(X_SAS,Y_SAS,'dr'); hold on
 plot(X_m,Y_m,'og'); hold on
-plot(X_p,Y_p,'ob');
-title('Comparación entre polos')
-legend('Planta Aumentada','Objetivo','Planta Libre')
-grid on
+plot(X_p,Y_p,'ob'); grid on
+sgtitle('Comparación entre polos',...
+    'interpreter','latex','fontsize',14)
+legend('Planta Aumentada','Objetivo','Planta Libre','interpreter','latex',...
+    'fontsize',14,'location','best')
 
 % Comparación de los polos del Dutch Roll 
 figure(15)
@@ -336,7 +337,7 @@ ylabel('$$Im$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14);
 legend([p1 p2],{'Punto objetivo','Planta libre'},'location', 'northeast',...
     'orientation','vertical','interpreter','latex','fontsize',14)
 
-% Diagrama de Nichols (para la open-loop)
+% Diagrama de Nichols (para la open-loop target elegida)
 [modulo_bode, fase_bode] = bode(SAS_OL_target,{10^-3,10^4});
 modulodB_bode = squeeze(20*log10(modulo_bode));
 faseDeg_bode = squeeze(fase_bode);
@@ -354,27 +355,109 @@ plot(faseDeg_bode(1),modulodB_bode(1),'ro','Linewidth',2)
 hold on; 
 plot([180 180],[0 100],'k-','Linewidth',2)
 plot([-180 -180],[0 100],'k-','Linewidth',2)
-xlabel('Open-Loop Phase [deg])'); 
+xlabel('Open-Loop Phase [deg]'); 
 ylabel('Open-Loop Gain [dB]');
 set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
 % Ticks de separacion
 hold on; set(gca,'XTick',[-720:45:720]); % Grados
 hold on; set(gca,'YTick',[-150:10:100]); % dB
 set(gcf,'Color',[1 1 1])
-legend('Márgenes nominales')
+legend('Márgenes nominales','interpreter','latex','fontsize',14,'location','best')
 grid on
-title('Diagrama de Nichols, Planta Aumentada Open Loop')
+sgtitle('Diagrama de Nichols, Planta Aumentada Open Loop',...
+    'interpreter','latex','fontsize',14)
 
-[Gm,Pm,Wcg,Wcp] = margin(SAS_OL_target); %Márgenes de ganancia y fase y sus respectivas frecuencias. Ojo el Gm no esta en dB
+[Gm,Pm,Wcg,Wcp] = margin(SAS_OL_target); % Márgenes de ganancia y fase y sus respectivas frecuencias. Ojo el Gm no esta en dB
 Margen_Ganancia = 20*log10(Gm); 
 Margen_Fase = Pm;
 
-%Diagrama de Bode (Para checkear, no lo pide)
+% Diagrama de Bode (Para checkear, no lo pide)
 figure(17);
 bode(SAS_OL_target,'b-')
 grid on; hold all;
 margin(SAS_OL_target,{10^-5,10^2})
 set(gcf,'Color',[1 1 1])
+
+% Diagrama de Nichols para todas las ganancias
+k_deltaRbeta = -(F_beta_target - 1)*p.Cn_beta/p.Cn_deltaR;
+k_deltaRr = -(F_r_target - 1)*(p.Cn_r/p.Cn_deltaR)*(0.5*p.b/p.Us);
+
+figure(18)
+k_ = zeros(11,1); 
+for i = 4;    % F_beta_target
+    for j = 1:2:length(F_r)
+        [modulo_bode, fase_bode] = bode(SAS_OL(i,j),{10^-3,10^4});
+        modulodB_bode = squeeze(20*log10(modulo_bode));
+        faseDeg_bode = squeeze(fase_bode);
+        
+        plot(faseDeg_bode,modulodB_bode,'Linewidth',1)
+        grid on; hold on; 
+        k_(j) = round(-(F_r(j)-1)*(p.Cn_r/p.Cn_deltaR)*(0.5*p.b/p.Us),3);
+    end
+    
+end
+a = k_(1:2:end);
+for i = 1:6
+    lg{i} = ['$[K_{\delta_r r}]_P$ = ',num2str(a(i))];
+end
+plot([180 180+45],[6 0],'r-'); hold on
+plot([180 180+45],[-6 0],'r-'); hold on
+plot([180 180-45],[6 0],'r-'); hold on
+plot([180 180-45],[-6 0],'r-'); hold on
+plot([180 180],[0 100],'k-','Linewidth',2)
+plot([-180 -180],[0 100],'k-','Linewidth',2)
+plot([540 540],[0 100],'k-','Linewidth',2)
+xlabel('Open-Loop Phase [deg]'); 
+ylabel('Open-Loop Gain [dB]');
+legend(lg,'interpreter','latex','fontsize',12,'location','best')
+
+% Ticks de separacion
+hold on; set(gca,'XTick',[-720:45:720]); % Grados
+hold on; set(gca,'YTick',[-150:10:100]); % dB
+set(gcf,'Color',[1 1 1])
+axis([-180 720 -90 90])
+grid on
+title(['Diagrama de Nichols, variaciones de $[k_{\delta_r r}]_P$'...
+    ' para $[k_{\delta_r \beta}]_P$ =',num2str(round(k_deltaRbeta,3))],...
+    'interpreter','latex','fontsize',12)
+
+figure(19)
+for j = 11;    % F_r_target
+    for i = 1:2:length(F_beta)
+        [modulo_bode, fase_bode] = bode(SAS_OL(i,j),{10^-3,10^4});
+        modulodB_bode = squeeze(20*log10(modulo_bode));
+        faseDeg_bode = squeeze(fase_bode);
+        
+        plot(faseDeg_bode,modulodB_bode,'Linewidth',1)
+        grid on; hold on; 
+        k_(i) = -(F_beta(i)-1)*p.Cn_beta/p.Cn_deltaR;
+    end
+end
+a = k_(1:2:end);
+for i = 1:6
+    lg{i} = ['$[K_{\delta_r r}]_P$ = ',num2str(round(a(i),3))];
+end
+plot([180 180+45],[6 0],'r-'); hold on
+plot([180 180+45],[-6 0],'r-'); hold on
+plot([180 180-45],[6 0],'r-'); hold on
+plot([180 180-45],[-6 0],'r-'); hold on
+plot([180 180],[0 100],'k-','Linewidth',2)
+plot([-180 -180],[0 100],'k-','Linewidth',2)
+plot([540 540],[0 100],'k-','Linewidth',2)
+xlabel('Open-Loop Phase [deg]'); 
+ylabel('Open-Loop Gain [dB]');
+legend(lg,'interpreter','latex','fontsize',12,'location','best')
+
+% Ticks de separacion
+hold on; set(gca,'XTick',[-720:45:720]); % Grados
+hold on; set(gca,'YTick',[-150:10:100]); % dB
+set(gcf,'Color',[1 1 1])
+axis([-180 720 -90 90])
+grid on
+title(['Diagrama de Nichols, variaciones de $[k_{\delta_r \beta}]_P$'...
+    ' para $[k_{\delta_r r}]_P$ =',num2str(round(k_deltaRr,3))],...
+    'interpreter','latex','fontsize',12)
+
 
 %% Filtro wash-out
 
