@@ -460,13 +460,259 @@ title(['Diagrama de Nichols, variaciones de $[k_{\delta_r \beta}]_P$'...
 
 
 %% Filtro wash-out
+F_beta_target = F_beta_target; %Ganancias de realimentación seleccionadas, son las seleccionadas en el barrido inicial pero se pueden cambiar.
+F_r_target = F_r_target;
 
+wDR = FT_lat.dutchroll.wn;
+w_washout_sens = [wDR/10, wDR, 10*wDR,0];
 
+for i=1:length(w_washout_sens)
+    G_washout_sens = tf([1,0],[1,w_washout_sens(i)]);
+    [SAS_CL_wo(i),SAS_OL_wo(i)] = Aumented_FT(F_beta_target,F_r_target,...
+    G_act,G_gyro,G_vane,G_washout_sens,K_DL,p,FT_lat);
+end
 
+%Lugar de las raíces
+figure(20)
+X_wo_low = real(SAS_CL_wo(1).p_deltaS.P{1,1}); 
+Y_wo_low = imag(SAS_CL_wo(1).p_deltaS.P{1,1});
+X_wo_DR = real(SAS_CL_wo(2).p_deltaS.P{1,1}); 
+Y_wo_DR = imag(SAS_CL_wo(2).p_deltaS.P{1,1}); 
+X_wo_high = real(SAS_CL_wo(3).p_deltaS.P{1,1}); 
+Y_wo_high = imag(SAS_CL_wo(3).p_deltaS.P{1,1}); 
+
+plot(X_wo_low,Y_wo_low,'or'); hold on                   %No se entiende nada, filtrar polos o algo.
+plot(X_wo_DR,Y_wo_DR,'og'); hold on
+plot(X_wo_high,Y_wo_high,'ob');
+title('Comparación entre polos')
+legend('$\omega_{wo} = \omega_{DR}/10$','$\omega_{wo} = \omega_{DR}$',...
+    '$\omega_{wo} = 10\omega_{DR}$','interpreter','latex','fontsize',12)
+grid on
+
+%Diagrama de Nichols
+figure(21)
+marker = {'b','m','g','y'};
+
+for i=1:length(w_washout_sens)
+    [modulo_bode, fase_bode] = bode(SAS_OL_wo(i),{10^-3,10^4});
+    modulodB_bode = squeeze(20*log10(modulo_bode));
+    faseDeg_bode = squeeze(fase_bode);
+   
+    plot(faseDeg_bode,modulodB_bode,'Color',marker{i},'Linewidth',1)
+    grid on; hold on; 
+    %plot(faseDeg_bode(1),modulodB_bode(1),'ro','Linewidth',1)   %Quitar estos markers tal vez
+    hold on; 
+end
+
+plot([180 180+45],[6 0],'r-'); hold on
+plot([180 180+45],[-6 0],'r-'); hold on
+plot([180 180-45],[6 0],'r-'); hold on
+plot([180 180-45],[-6 0],'r-'); hold on
+
+plot([180 180],[0 100],'k-','Linewidth',2)
+plot([-180 -180],[0 100],'k-','Linewidth',2)
+xlabel('Open-Loop Phase [deg])'); 
+ylabel('Open-Loop Gain [dB]');
+set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
+% Ticks de separacion
+hold on; set(gca,'XTick',[-720:45:720]); % Grados
+hold on; set(gca,'YTick',[-150:10:100]); % dB
+set(gcf,'Color',[1 1 1])
+legend('$$\omega_{wo} = \omega_{DR}/10$$','','$$\omega_{wo} = \omega_{DR}$$','',...
+    '$$\omega_{wo} = 10\omega_{DR}$$','','$$\omega_{wo} = 0$$','','Márgenes nominales'...
+    ,'interpreter','latex','fontsize',12)
+grid on
+title('Diagrama de Nichols, Planta Aumentada Open Loop')
+
+%Respuesta a escalón de 20 segundos
+K_deltaRbeta = -(F_beta_target - 1)*p.Cn_beta/p.Cn_deltaR; 
+K_deltaRr = -(F_r_target - 1)*(p.Cn_r/p.Cn_deltaR)*(0.5*p.b/p.Us);
+
+for i=1:length(w_washout_sens)
+    G_washout = tf([1,0],[1,w_washout_sens(i)]);
+    RT_SAS_135(i) = sim('modelo_SAS_134',40)
+end
+
+figure(22)                              % wo = wDR/10
+subplot(2,2,1)
+plot(RT_SAS_135(1).tout,RT_SAS_135(1).beta); grid on;  % Ángulo de resbalamiento
+xticks(0:10:40);
+yticks(-0.1:0.05:0.2);
+axis([0 40 -0.05 0.2]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$\beta \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+
+subplot(2,2,2)
+plot(RT_SAS_135(1).tout,RT_SAS_135(1).phi); grid on;   % Ángulo de balance
+xticks(0:10:40);
+yticks(0:3:15);
+axis([0 40 0 16]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$\phi \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+
+subplot(2,2,3)
+plot(RT_SAS_135(1).tout,RT_SAS_135(1).r); grid on;      % Velocidad de guiñada
+xticks(0:10:40);
+yticks(0:0.2:1.2);
+axis([0 40 -0.1 1.2]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$r \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
+
+subplot(2,2,4)
+plot(RT_SAS_135(1).tout,RT_SAS_135(1).p);  grid on;     % Velocidad de balance
+xticks(0:10:40);
+yticks(-0.5:0.5:1.5);
+axis([0 40 -0.5 1.5]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$p \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
+sgtitle('$\omega_{wo} = \omega_{DR}/10$','interpreter','latex',...
+    'fontsize',14)
+
+figure(23)                              % wo = wDR
+subplot(2,2,1)
+plot(RT_SAS_135(2).tout,RT_SAS_135(2).beta); grid on;  % Ángulo de resbalamiento
+xticks(0:10:40);
+yticks(-0.1:0.05:0.2);
+axis([0 40 -0.05 0.2]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$\beta \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+
+subplot(2,2,2)
+plot(RT_SAS_135(2).tout,RT_SAS_135(2).phi); grid on;   % Ángulo de balance
+xticks(0:10:40);
+yticks(0:3:15);
+axis([0 40 0 16]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$\phi \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+
+subplot(2,2,3)
+plot(RT_SAS_135(2).tout,RT_SAS_135(2).r); grid on;      % Velocidad de guiñada
+xticks(0:10:40);
+yticks(0:0.2:1.2);
+axis([0 40 -0.1 1.2]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$r \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
+
+subplot(2,2,4)
+plot(RT_SAS_135(2).tout,RT_SAS_135(2).p);  grid on;     % Velocidad de balance
+xticks(0:10:40);
+yticks(-0.5:0.5:1.5);
+axis([0 40 -0.5 1.5]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$p \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
+sgtitle('$\omega_{wo} = \omega_{DR}$','interpreter','latex',...
+    'fontsize',14)
+
+figure(24)                              % wo = wDR
+subplot(2,2,1)
+plot(RT_SAS_135(3).tout,RT_SAS_135(3).beta); grid on;  % Ángulo de resbalamiento
+xticks(0:10:40);
+yticks(-0.1:0.05:0.2);
+axis([0 40 -0.05 0.2]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$\beta \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+
+subplot(2,2,2)
+plot(RT_SAS_135(3).tout,RT_SAS_135(3).phi); grid on;   % Ángulo de balance
+xticks(0:10:40);
+yticks(0:3:15);
+axis([0 40 0 16]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$\phi \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+
+subplot(2,2,3)
+plot(RT_SAS_135(3).tout,RT_SAS_135(3).r); grid on;      % Velocidad de guiñada
+xticks(0:10:40);
+yticks(0:0.2:1.2);
+axis([0 40 -0.1 1.2]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$r \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
+
+subplot(2,2,4)
+plot(RT_SAS_135(3).tout,RT_SAS_135(3).p);  grid on;     % Velocidad de balance
+xticks(0:10:40);
+yticks(-0.5:0.5:1.5);
+axis([0 40 -0.5 1.5]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$p \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
+sgtitle('$\omega_{wo} = 10\omega_{DR}$','interpreter','latex',...
+    'fontsize',14)
+
+figure(25)                              % wo = 0
+subplot(2,2,1)
+plot(RT_SAS_135(4).tout,RT_SAS_135(4).beta); grid on;  % Ángulo de resbalamiento
+xticks(0:10:40);
+yticks(-0.1:0.05:0.2);
+axis([0 40 -0.05 0.2]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$\beta \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+
+subplot(2,2,2)
+plot(RT_SAS_135(4).tout,RT_SAS_135(4).phi); grid on;   % Ángulo de balance
+xticks(0:10:40);
+yticks(0:3:15);
+axis([0 40 0 16]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$\phi \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+
+subplot(2,2,3)
+plot(RT_SAS_135(4).tout,RT_SAS_135(4).r); grid on;      % Velocidad de guiñada
+xticks(0:10:40);
+yticks(0:0.2:1.2);
+axis([0 40 -0.1 1.2]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$r \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
+
+subplot(2,2,4)
+plot(RT_SAS_135(4).tout,RT_SAS_135(4).p);  grid on;     % Velocidad de balance
+xticks(0:10:40);
+yticks(-0.5:0.5:1.5);
+axis([0 40 -0.5 1.5]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$p \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
+sgtitle('$\omega_{wo} = 0$','interpreter','latex',...
+    'fontsize',14)
+
+%Elección wo = 0.8*wDR
+wo_elegido = 0.8*wDR;
+
+G_washout = tf([1,0],[1,wo_elegido]);
+RT_SAS_135_elegido = sim('modelo_SAS_134',40) %Respueta temporal a las FT con wo=0.8*wDR
+
+figure(26)                              
+subplot(2,2,1)
+plot(RT_SAS_135_elegido.tout,RT_SAS_135_elegido.beta); grid on;  % Ángulo de resbalamiento
+xticks(0:10:40);
+yticks(-0.1:0.05:0.2);
+axis([0 40 -0.05 0.2]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$\beta \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+
+subplot(2,2,2)
+plot(RT_SAS_135_elegido.tout,RT_SAS_135_elegido.phi); grid on;   % Ángulo de balance
+xticks(0:10:40);
+yticks(0:3:15);
+axis([0 40 0 16]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$\phi \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+
+subplot(2,2,3)
+plot(RT_SAS_135_elegido.tout,RT_SAS_135_elegido.r); grid on;      % Velocidad de guiñada
+xticks(0:10:40);
+yticks(0:0.2:1.2);
+axis([0 40 -0.1 1.2]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$r \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
+
+subplot(2,2,4)
+plot(RT_SAS_135_elegido.tout,RT_SAS_135_elegido.p);  grid on;     % Velocidad de balance
+xticks(0:10:40);
+yticks(-0.5:0.5:1.5);
+axis([0 40 -0.5 1.5]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$p \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
+sgtitle('$\omega_{wo} = 0.8\omega_{DR}$','interpreter','latex',...
+    'fontsize',14)
 %--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------%
-
-
-
-
 
 
