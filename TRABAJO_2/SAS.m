@@ -277,8 +277,9 @@ barrido_ganancias = figure(13);    % Entregable 13
 p1 = plot(X_dr,Y_dr,'dm','markersize',4,'markerfacecolor','m'); hold on;
 p2 = plot(X_s,Y_s,'dc','markersize',4,'markerfacecolor','c'); hold on;
 p3 = plot(X_r,Y_r,'dg','markersize',4,'markerfacecolor','g'); hold on;
+xline(0); yline(0);
 grid on;
-axis([-4 0.5 -5.5 5.5]);
+axis([-2 1 -5.5 5.5]);
 xa = [.87 .87]; ya = [.65 .9]; 
 annotation('arrow',xa,ya,'color','k'); hold on;
 xa = [.8 .6]; ya = [.9 .9]; 
@@ -289,7 +290,7 @@ text(-0.75,4.87,text2,'fontsize',14,'interpreter','latex');
 
 xlabel('$$Re$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14); 
 ylabel('$$Im$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14);
-legend([p1 p2 p3],{'Balanceo Holandes','Espiral','Convergencia balance'},...
+legend([p1 p2 p3],{'Balanceo Holandés','Espiral','Convergencia balance'},...
     'location', 'northwest', 'orientation','vertical','interpreter','latex',...
     'fontsize',14);
 sgtitle('Barrido en ganancias','interpreter','latex','fontsize',14)
@@ -299,8 +300,8 @@ sgtitle('Barrido en ganancias','interpreter','latex','fontsize',14)
     G_act,G_gyro,G_vane,G_washout,K_DL,p,FT_lat); 
 
 figure(14)
-X_SAS = real(SAS_CL_target.p_deltaS.P{1,1}); % Parte real de los polos del la planta aumentada
-Y_SAS = imag(SAS_CL_target.p_deltaS.P{1,1}); % Parte imaginaria de los polos del la planta aumentada
+X_SAS = real(SAS_CL_target.r_deltaS.P{1,1}); % Parte real de los polos del la planta aumentada
+Y_SAS = imag(SAS_CL_target.r_deltaS.P{1,1}); % Parte imaginaria de los polos del la planta aumentada
 % X_SAS = real(SAS_OL_target.P{1,1});
 % Y_SAS = imag(SAS_OL_target.P{1,1});
 X_p = [real(FT_lat.Poles)]; % Parte real de los polos del la planta libre
@@ -308,8 +309,11 @@ Y_p = [imag(FT_lat.Poles)]; % Parte imaginaria de los polos de la planta libre
 X_m = [real(FT_22.Poles)];  % Parte real de los polos del la planta objetivo
 Y_m = [imag(FT_22.Poles)];  % Parte imaginaria de los polos de la planta objetivo
 plot(X_SAS,Y_SAS,'dr'); hold on
-plot(X_m,Y_m,'og'); hold on
+plot(X_m,Y_m,'xk'); hold on
 plot(X_p,Y_p,'ob'); grid on
+axis([-12 1 -2.5 2.5]);
+xlabel('$$Re$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14); 
+ylabel('$$Im$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14);
 sgtitle('Comparación entre polos',...
     'interpreter','latex','fontsize',14)
 legend('Planta Aumentada','Objetivo','Planta Libre','interpreter','latex',...
@@ -318,7 +322,7 @@ legend('Planta Aumentada','Objetivo','Planta Libre','interpreter','latex',...
 % Comparación de los polos del Dutch Roll 
 figure(15)
 plot(X_dr,Y_dr,'dm','markersize',4,'markerfacecolor','m'); hold on;
-plot(X_SAS,Y_SAS,'dg','markersize',4,'markerfacecolor','g'); hold on;
+p3 = plot(X_SAS(5),Y_SAS(5),'dg','markersize',4,'markerfacecolor','g'); hold on;
 grid on; 
 axis([-2 1 0 5]);
 plot(A,-tan(acos(chiDR_lim)).*A,'k-','linewidth',1); hold on;
@@ -334,7 +338,7 @@ p1 = plot(X_m(2),Y_m(2),'pr','markersize',10,'markerfacecolor','r'); hold on;
 p2 = plot(X_p(2),Y_p(2),'ob','markersize',8,'markerfacecolor','b'); hold on;
 xlabel('$$Re$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14); 
 ylabel('$$Im$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14);
-legend([p1 p2],{'Punto objetivo','Planta libre'},'location', 'northeast',...
+legend([p2 p1 p3],{'Planta libre','Punto objetivo','Punto logrado'},'location', 'northeast',...
     'orientation','vertical','interpreter','latex','fontsize',14)
 
 % Diagrama de Nichols (para la open-loop target elegida)
