@@ -259,10 +259,11 @@ F_r = 0:0.5:5;
 X_dr = []; Y_dr = [];
 X_s = []; Y_s = [];
 X_r = []; Y_r = [];
+G_washout = 1;
 for i = 1:length(F_beta)
     for j = 1:length(F_r)
         [SAS_CL(i,j), SAS_OL(i,j)] = Aumented_FT(F_beta(i), F_r(j), G_act,...
-            G_gyro, G_vane, K_DL, p, FT_lat);
+            G_gyro, G_vane,G_washout, K_DL, p, FT_lat);
         % Representamos los polos para el barrido de coeficientes
         X_dr = [X_dr;real(SAS_CL(i,j).p_deltaS.P{1,1}(end-1:end))];
         Y_dr = [Y_dr;imag(SAS_CL(i,j).p_deltaS.P{1,1}(end-1:end))];
@@ -295,7 +296,7 @@ title('Barrido en ganancias')
 
 % Comparación Planta Aumentada vs Planta Libre vs Objetivo
 [SAS_CL_target,SAS_OL_target] = Aumented_FT(F_beta_target,F_r_target,...
-    G_act,G_gyro,G_vane,K_DL,p,FT_lat); 
+    G_act,G_gyro,G_vane,G_washout,K_DL,p,FT_lat); 
 
 figure(14)
 X_SAS = real(SAS_CL_target.p_deltaS.P{1,1}); % Parte real de los polos del la planta aumentada
@@ -316,7 +317,7 @@ grid on
 % Comparación de los polos del Dutch Roll 
 figure(15)
 plot(X_dr,Y_dr,'dm','markersize',4,'markerfacecolor','m'); hold on;
-plot(X_SAS,Y_SAS,'dg','markersize',4,'markerfacecolor','g')
+plot(X_SAS,Y_SAS,'dg','markersize',4,'markerfacecolor','g'); hold on;
 grid on; 
 axis([-2 1 0 5]);
 plot(A,-tan(acos(chiDR_lim)).*A,'k-','linewidth',1); hold on;
@@ -335,7 +336,7 @@ ylabel('$$Im$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14);
 legend([p1 p2],{'Punto objetivo','Planta libre'},'location', 'northeast',...
     'orientation','vertical','interpreter','latex','fontsize',14)
 
-%Diagrama de Nichols
+% Diagrama de Nichols (para la open-loop)
 [modulo_bode, fase_bode] = bode(SAS_OL_target,{10^-3,10^4});
 modulodB_bode = squeeze(20*log10(modulo_bode));
 faseDeg_bode = squeeze(fase_bode);
@@ -376,6 +377,7 @@ margin(SAS_OL_target,{10^-5,10^2})
 set(gcf,'Color',[1 1 1])
 
 %% Filtro wash-out
+
 
 
 %--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------%

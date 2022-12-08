@@ -1,10 +1,10 @@
 %% Función que calcula las FT del sistema realimentado
-function [FT_CL, FT_OL] = Aumented_FT(F_beta,F_r,G_act,G_gyro,G_vane,K_DL,p,FT_lat)
+function [FT_CL, FT_OL] = Aumented_FT(F_beta,F_r,G_act,G_gyro,G_vane,G_wash,K_DL,p,FT_lat)
     % Calculamos todas las FT a mano en lazo cerrado
         % Funciones de transferencia de los elementos
     Ga_deltaA = G_act; Ga_deltaR = G_act;       % FT actuadores
     Gs_r = G_gyro; Gs_beta = G_vane;            % FT sensores
-    Gf_r = 1;                                   % FT filtro wash-out (supuesto 1)
+    Gf_r = G_wash;                              % FT filtro wash-out
     
     % Cálculo de las ganancias de realimentación en función de F
     K_deltaRbeta = -(F_beta - 1)*p.Cn_beta/p.Cn_deltaR; 
