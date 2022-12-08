@@ -726,6 +726,62 @@ xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
 ylabel('$$p \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
 sgtitle('$\omega_{wo} = 0.8\omega_{DR}$','interpreter','latex',...
     'fontsize',14)
-%--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------%
 
+%Por tanto, como resultado final de FT tenemos:
+[FT_SAS_CL, FT_SAS_OL] = Aumented_FT(F_beta_target, F_r_target,G_act,G_gyro,...
+    G_vane,G_washout,K_DL,p,FT_lat);        %% FT del SAS definitivas 
 
+%% AUTOPILOTO
+%No me interesa el Direct link, dejo el actuador dentro del SAS. La función
+%Autopilot_FT me saca las funciones de transferencia del autopiloto
+
+%Hacemos barrido de ganancias de realimentación 
+K_P = 0:0.5:2;
+X_AP_P = []; Y_AP_P = [];
+for i = 1:length(K_P)
+    [FT_AP_CL(i), FT_AP_OL(i)] = Autopilot_FT(F_beta_target,F_r_target,G_act,...
+        G_gyro,G_vane,G_washout,p,FT_lat,K_P(i));
+    %Saco los polos de la función de phi de lazo cerrado
+    X_AP_P = [X_AP_P; real(FT_AP_CL(i).phi.P{1,1})]; 
+    Y_AP_P = [Y_AP_P; imag(FT_AP_CL(i).phi.P{1,1})]; 
+end
+
+%Lugar de las raices
+figure(27)
+plot(X_AP_P,Y_AP_P,'xr')
+grid on
+
+% Diagrama de Nichols
+figure(28)
+%marker = {'b','m','g','y'};
+
+for i=1:length(K_P)
+    
+    [modulo_bode, fase_bode] = bode(FT_AP_OL(i),{10^-3,10^4});
+    modulodB_bode = squeeze(20*log10(modulo_bode));
+    faseDeg_bode = squeeze(fase_bode);
+   
+    plot(faseDeg_bode,modulodB_bode,'Linewidth',1)
+    grid on; hold on; 
+    %plot(faseDeg_bode(1),modulodB_bode(1),'ro','Linewidth',1)   %Quitar estos markers tal ve 
+end
+
+plot([180 180+45],[6 0],'r-'); hold on
+plot([180 180+45],[-6 0],'r-'); hold on
+plot([180 180-45],[6 0],'r-'); hold on
+plot([180 180-45],[-6 0],'r-'); hold on
+
+plot([180 180],[0 100],'k-','Linewidth',2)
+plot([-180 -180],[0 100],'k-','Linewidth',2)
+xlabel('Open-Loop Phase [deg])'); 
+ylabel('Open-Loop Gain [dB]');
+set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
+% Ticks de separacion
+hold on; set(gca,'XTick',[-720:45:720]); % Grados
+hold on; set(gca,'YTick',[-150:10:100]); % dB
+set(gcf,'Color',[1 1 1])
+legend('$$\omega_{wo} = \omega_{DR}/10$$','','$$\omega_{wo} = \omega_{DR}$$','',...
+    '$$\omega_{wo} = 10\omega_{DR}$$','','$$\omega_{wo} = 0$$','','Márgenes nominales'...
+    ,'interpreter','latex','fontsize',12)
+grid on
+title('Diagrama de Nichols, Autopiloto Open Loop')
