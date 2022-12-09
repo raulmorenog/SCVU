@@ -742,7 +742,7 @@ sgtitle('$\omega_{wo} = 0.8\omega_{DR}$','interpreter','latex',...
 % Autopilot_FT me saca las funciones de transferencia del autopiloto
 
 % Hacemos barrido de ganancias de realimentación 
-K_P = 0.25:0.25:2.25;
+K_P = 0.25:0.25:2;
 X_AP_P = []; Y_AP_P = [];
 for i = 1:length(K_P)
     [FT_AP_CL(i), FT_AP_OL(i)] = Autopilot_FT(F_beta_target,F_r_target,G_act,...
@@ -751,11 +751,34 @@ for i = 1:length(K_P)
     X_AP_P = [X_AP_P; real(FT_AP_CL(i).phi.P{1,1})]; 
     Y_AP_P = [Y_AP_P; imag(FT_AP_CL(i).phi.P{1,1})]; 
 end
+XAP = zeros(10,8); YAP = zeros(10,8); 
+XAP(:,1) = X_AP_P(1:10); YAP(:,1) = Y_AP_P(1:10);
+XAP(:,2) = X_AP_P(11:20); YAP(:,2) = Y_AP_P(11:20);
+XAP(:,3) = X_AP_P(21:30); YAP(:,3) = Y_AP_P(21:30);
+XAP(:,4) = X_AP_P(31:40); YAP(:,4) = Y_AP_P(31:40);
+XAP(:,5) = X_AP_P(41:50); YAP(:,5) = Y_AP_P(41:50);
+XAP(:,6) = X_AP_P(51:60); YAP(:,6) = Y_AP_P(51:60);
+XAP(:,7) = X_AP_P(61:70); YAP(:,7) = Y_AP_P(61:70);
+XAP(:,8) = X_AP_P(71:80); YAP(:,8) = Y_AP_P(71:80);
 
 % Lugar de las raices
 figure(27)
-plot(X_AP_P,Y_AP_P,'xr')
-grid on
+marker = {'xr','xy','xc','xg','xb','xb','xk','xk','xm','xm'};
+for i = 1:10
+    plot(XAP(i,:),YAP(i,:),marker{i},'markersize',6)
+    grid on; hold on;
+end
+xa = [.83 .85]; ya = [.68 .9]; 
+annotation('arrow',xa,ya,'color','k'); hold on; % Azul
+xa = [.7 .73]; ya = [.58 .67]; 
+annotation('arrow',xa,ya,'color','k'); hold on; % Rosa
+xa = [.3 .18]; ya = [.54 0.54]; 
+annotation('arrow',xa,ya,'color','k'); hold on; % Rojo
+xa = [.73 .68]; ya = [.54 0.54]; 
+annotation('arrow',xa,ya,'color','k'); hold on; % Verde
+
+xlabel('$Re$ $[\mathrm{s^{-1}}]$','interpreter','latex','fontsize',14); 
+ylabel('$Im$ $[\mathrm{s^{-1}}]$','interpreter','latex','fontsize',14);
 
 % Diagrama de Nichols
 figure(28)
@@ -783,21 +806,53 @@ ylabel('Open-Loop Gain [dB]');
 % Ticks de separacion
 hold on; set(gca,'XTick',[-720:45:720]); % Grados
 hold on; set(gca,'YTick',[-150:10:100]); % dB
-% set(gcf,'Color',[1 1 1])
 axis([0 540 -150 100])
 legend(lg,'interpreter','latex','fontsize',12,'location','best')
 grid on
 sgtitle('Nichols, Autopiloto Open Loop','interpreter','latex','fontsize',12)
 
-% Elección de la ganancia de realimentación
-K_P = 0.15:0.15:0.75;         % Se han reasignado
+% Elección de la ganancia de realimentación (barrido más fino)
+K_P = 0.05:0.10:0.65;         % Se han reasignado
+
+% Diagrama de Nichols
+figure(29)
+for i=1:length(K_P)
+    [modulo_bode, fase_bode] = bode(FT_AP_OL(i),{10^-3,10^4});
+    modulodB_bode = squeeze(20*log10(modulo_bode));
+    faseDeg_bode = squeeze(fase_bode);
+   
+    plot(faseDeg_bode,modulodB_bode,'Linewidth',1)
+    grid on; hold on; 
+    lgd{i} = ['$K_P$ = ',num2str(round(K_P(i),3))];
+end
+
+plot([180 180+45],[6 0],'r-'); hold on
+plot([180 180+45],[-6 0],'r-'); hold on
+plot([180 180-45],[6 0],'r-'); hold on
+plot([180 180-45],[-6 0],'r-'); hold on
+
+plot([180 180],[0 100],'k-','Linewidth',2)
+plot([-180 -180],[0 100],'k-','Linewidth',2)
+plot([360 360],[0 100],'k-','Linewidth',2)
+xlabel('Open-Loop Phase [deg])'); 
+ylabel('Open-Loop Gain [dB]');
+% Ticks de separacion
+hold on; set(gca,'XTick',[-720:45:720]); % Grados
+hold on; set(gca,'YTick',[-150:10:100]); % dB
+axis([0 540 -150 100])
+legend(lgd,'interpreter','latex','fontsize',12,'location','best')
+grid on
+sgtitle('Nichols, Autopiloto Open Loop','interpreter','latex','fontsize',12)
+
+
 for i = 1:length(K_P)
-    %Llamo al modelo de simulink para los distintos valores de la ganancia
+    % Llamo al modelo de simulink para los distintos valores de la ganancia
     K_P_ = K_P(i);
     lg{i} = ['$K_P$ = ',num2str(round(K_P(i),3))];
     RT_AP_K(i) = sim('modelo_AP_15',50);
 end 
-iFig = 29;
+iFig = 30;
+
 for j = 1:5
     figure(iFig)
     for i = 1:length(K_P)
@@ -806,31 +861,31 @@ for j = 1:5
             xlabel('Tiempo [s]','interpreter','latex','fontsize',14)
             ylabel('$\beta$ $[\mathrm{^\circ}]$','interpreter','latex',...
                 'fontsize',14)
-            legend(lg,'interpreter','latex','fontsize',14,'location','best')
+            legend(lgd,'interpreter','latex','fontsize',14,'location','best')
         elseif j == 2
             plot(RT_AP_K(i).tout,RT_AP_K(i).r,'-'); hold on;
             xlabel('Tiempo [s]','interpreter','latex','fontsize',14)
             ylabel('$r$ $[\mathrm{^\circ/s}]$','interpreter','latex',...
                 'fontsize',14)
-            legend(lg,'interpreter','latex','fontsize',14,'location','best')
+            legend(lgd,'interpreter','latex','fontsize',14,'location','best')
         elseif j == 3
             plot(RT_AP_K(i).tout,RT_AP_K(i).phi,'-'); hold on;
             xlabel('Tiempo [s]','interpreter','latex','fontsize',14)
             ylabel('$\phi$ $[\mathrm{^\circ}]$','interpreter','latex',...
                 'fontsize',14)
-            legend(lg,'interpreter','latex','fontsize',14,'location','best')
+            legend(lgd,'interpreter','latex','fontsize',14,'location','best')
         elseif j == 4
             plot(RT_AP_K(i).tout,RT_AP_K(i).p,'-'); hold on;
             xlabel('Tiempo [s]','interpreter','latex','fontsize',14)
             ylabel('$p$ $[\mathrm{^\circ/s}]$','interpreter','latex',...
                 'fontsize',14)
-            legend(lg,'interpreter','latex','fontsize',14,'location','best')
+            legend(lgd,'interpreter','latex','fontsize',14,'location','best')
         elseif j == 5
             plot(RT_AP_K(i).tout,RT_AP_K(i).deltaA_AP,'-'); hold on;
             xlabel('Tiempo [s]','interpreter','latex','fontsize',14)
             ylabel('${\delta_a}_{cmd}$ $[\mathrm{^\circ}]$','interpreter','latex',...
                 'fontsize',14)
-            legend(lg,'interpreter','latex','fontsize',14,'location','best')  
+            legend(lgd,'interpreter','latex','fontsize',14,'location','best')  
         else
         end
     end
