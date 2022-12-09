@@ -6,23 +6,23 @@ function [rise_time time_delay] = rise_delay(t,signal)
     % Rise time (tiempo entre 0.9y_ss y 0.1y_ss)
         % Cálculo del valor máximo (estacionario para phi) de phi y su
         % tiempo asociado
-    [y_max index_max] = max(y);
+    [y_max index_max] = max(y)
     t_max = time(index_max);
         
         % Cálculo de los valores de referencia y del tiempo asociado a esto
-    y_01 = 0.1*y_max; 
-    y_09 = 0.9*y_max;
+    y_01 = 0.1*y_max 
+    y_09 = 0.9*y_max
     for i = 1:length(time)
-        if abs(y_01-y(i)) <= 0.5     % Impuesta una diferencia de 0.1 entre valores
+        if abs(y_01-y(i)) <= 0.2     % Impuesta una diferencia de 0.1 entre valores
             index_01 = i; 
-        elseif abs(y_09-y(i)) <= 0.1 % Impuesta una diferencia de 0.1 entre valores
+        elseif abs(y_09-y(i)) <= 0.2 % Impuesta una diferencia de 0.1 entre valores
             index_09 = i; 
             break           % Cogemos el primer valor y salimos del bucle porque
         else                % la respuesta puede disminuir (caso espiral estable)
         end
     end
-    t_01 = time(index_01); 
-    t_09 = time(index_09);
+    t_01 = time(index_01) 
+    t_09 = time(index_09)
     rise_time = t_09-t_01;
 
     % Time delay (tiempo de reacción)
