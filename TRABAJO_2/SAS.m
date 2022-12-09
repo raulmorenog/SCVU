@@ -223,8 +223,8 @@ yticks(-0.5:0.5:1.5);
 axis([0 40 -0.5 1.5]);
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
 ylabel('$$p \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
-sgtitle('Variables de estado para modelo 3 gdl','interpreter','latex',...
-    'fontsize',14)
+% sgtitle('Variables de estado para modelo 3 gdl','interpreter','latex',...
+%     'fontsize',14)
 
     % Respuesta con el modelo de 1gdl
 RT_OL_133_simp = sim('modelo_convergencia_balance_1gdl',40);
@@ -252,8 +252,8 @@ yticks(-0.5:0.25:1.5);
 axis([0 40 -0.5 1.5]);
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
 ylabel('$$p \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
-sgtitle('Variables de estado para modelo 1 gld','interpreter','latex',...
-    'fontsize',14)
+% sgtitle('Variables de estado para modelo 1 gld','interpreter','latex',...
+%     'fontsize',14)
 
 
 %% SAS 
@@ -281,7 +281,7 @@ barrido_ganancias = figure(13);    % Entregable 13
 p1 = plot(X_dr,Y_dr,'dm','markersize',4,'markerfacecolor','m'); hold on;
 p2 = plot(X_s,Y_s,'dc','markersize',4,'markerfacecolor','c'); hold on;
 p3 = plot(X_r,Y_r,'dg','markersize',4,'markerfacecolor','g'); hold on;
-xline(0); yline(0);
+% xline(0); yline(0);
 grid on;
 axis([-2 1 -5.5 5.5]);
 xa = [.87 .87]; ya = [.65 .9]; 
@@ -289,15 +289,15 @@ annotation('arrow',xa,ya,'color','k'); hold on;
 xa = [.8 .6]; ya = [.9 .9]; 
 annotation('arrow',xa,ya,'color','k'); hold on;
 text1 = '$$|[k_{\delta_{r}\beta}]|$$'; text2 = '$$[k_{\delta_{r}r}]$$';  
-text(-0.06,4.8,text1,'fontsize',14,'interpreter','latex'); hold on; 
-text(-0.75,4.87,text2,'fontsize',14,'interpreter','latex');
+text(0,4.78,text2,'fontsize',14,'interpreter','latex'); hold on; 
+text(0.5,2.5,text1,'fontsize',14,'interpreter','latex');
 
 xlabel('$$Re$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14); 
 ylabel('$$Im$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14);
-legend([p1 p2 p3],{'Balanceo Holandés','Espiral','Convergencia balance'},...
+legend([p1 p2 p3],{'Balanceo Holandes','Espiral','Convergencia balance'},...
     'location', 'northwest', 'orientation','vertical','interpreter','latex',...
     'fontsize',14);
-sgtitle('Barrido en ganancias','interpreter','latex','fontsize',14)
+
 
 % Comparación Planta Aumentada vs Planta Libre vs Objetivo
 [SAS_CL_target,SAS_OL_target] = Aumented_FT(F_beta_target,F_r_target,...
@@ -318,8 +318,6 @@ plot(X_p,Y_p,'ob'); grid on
 axis([-12 1 -2.5 2.5]);
 xlabel('$$Re$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14); 
 ylabel('$$Im$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14);
-sgtitle('Comparación entre polos',...
-    'interpreter','latex','fontsize',14)
 legend('Planta Aumentada','Objetivo','Planta Libre','interpreter','latex',...
     'fontsize',14,'location','best')
 
@@ -332,6 +330,7 @@ axis([-2 1 0 5]);
 plot(A,-tan(acos(chiDR_lim)).*A,'k-','linewidth',1); hold on;
 viscircles([0 0],wnDR_lim,'linewidth',1,'color','k'); hold on;
 xline(0,'k-','linewidth',1); hold on;
+xline(-0.35,'k-','linewidth',1); hold on;
 
 s.Cn_beta = Cn_beta(4);    % Valor deseado de Cn_beta !!!!!!!
 s.Cn_r = Cn_r(11);         % Valor deseado de Cn_r_target !!!!!!!
@@ -342,7 +341,7 @@ p1 = plot(X_m(2),Y_m(2),'pr','markersize',10,'markerfacecolor','r'); hold on;
 p2 = plot(X_p(2),Y_p(2),'ob','markersize',8,'markerfacecolor','b'); hold on;
 xlabel('$$Re$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14); 
 ylabel('$$Im$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14);
-legend([p2 p1 p3],{'Planta libre','Punto objetivo','Punto logrado'},'location', 'northeast',...
+legend([p2 p1 p3],{'Planta libre','Punto objetivo','Punto logrado'},'location', 'northwest',...
     'orientation','vertical','interpreter','latex','fontsize',14)
 
 % Diagrama de Nichols (para la open-loop target elegida)
@@ -363,6 +362,7 @@ plot(faseDeg_bode(1),modulodB_bode(1),'ro','Linewidth',2)
 hold on; 
 plot([180 180],[0 100],'k-','Linewidth',2)
 plot([-180 -180],[0 100],'k-','Linewidth',2)
+plot([360 360],[0 100],'k-','Linewidth',2)
 xlabel('Open-Loop Phase [deg]'); 
 ylabel('Open-Loop Gain [dB]');
 set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
@@ -370,10 +370,10 @@ set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
 hold on; set(gca,'XTick',[-720:45:720]); % Grados
 hold on; set(gca,'YTick',[-150:10:100]); % dB
 set(gcf,'Color',[1 1 1])
-legend('Márgenes nominales','interpreter','latex','fontsize',14,'location','best')
+legend('Margenes nominales','interpreter','latex','fontsize',14,'location','best')
 grid on
-sgtitle('Diagrama de Nichols, Planta Aumentada Open Loop',...
-    'interpreter','latex','fontsize',14)
+% sgtitle('Diagrama de Nichols, Planta Aumentada Open Loop',...
+%     'interpreter','latex','fontsize',14)
 
 [Gm,Pm,Wcg,Wcp] = margin(SAS_OL_target); % Márgenes de ganancia y fase y sus respectivas frecuencias. Ojo el Gm no esta en dB
 Margen_Ganancia = 20*log10(Gm); 
@@ -414,6 +414,7 @@ plot([180 180-45],[6 0],'r-'); hold on
 plot([180 180-45],[-6 0],'r-'); hold on
 plot([180 180],[0 100],'k-','Linewidth',2)
 plot([-180 -180],[0 100],'k-','Linewidth',2)
+plot([360 360],[0 100],'k-','Linewidth',2)
 plot([540 540],[0 100],'k-','Linewidth',2)
 xlabel('Open-Loop Phase [deg]'); 
 ylabel('Open-Loop Gain [dB]');
@@ -425,7 +426,7 @@ hold on; set(gca,'YTick',[-150:10:100]); % dB
 set(gcf,'Color',[1 1 1])
 axis([90 630 -90 90])
 grid on
-title(['Diagrama de Nichols, variaciones de $[k_{\delta_r r}]_P$'...
+sgtitle(['Nichols'...
     ' para $[k_{\delta_r \beta}]_P$ =',num2str(round(k_deltaRbeta,3))],...
     'interpreter','latex','fontsize',12)
 
@@ -452,6 +453,7 @@ plot([180 180-45],[6 0],'r-'); hold on
 plot([180 180-45],[-6 0],'r-'); hold on
 plot([180 180],[0 100],'k-','Linewidth',2)
 plot([-180 -180],[0 100],'k-','Linewidth',2)
+plot([360 360],[0 100],'k-','Linewidth',2)
 plot([540 540],[0 100],'k-','Linewidth',2)
 xlabel('Open-Loop Phase [deg]'); 
 ylabel('Open-Loop Gain [dB]');
@@ -463,7 +465,7 @@ hold on; set(gca,'YTick',[-150:10:100]); % dB
 set(gcf,'Color',[1 1 1])
 axis([90 630 -90 90])
 grid on
-title(['Diagrama de Nichols, variaciones de $[k_{\delta_r \beta}]_P$'...
+title(['Nichols'...
     ' para $[k_{\delta_r r}]_P$ =',num2str(round(k_deltaRr,3))],...
     'interpreter','latex','fontsize',12)
 
