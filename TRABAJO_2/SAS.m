@@ -742,7 +742,7 @@ sgtitle('$\omega_{wo} = 0.8\omega_{DR}$','interpreter','latex',...
 % Autopilot_FT me saca las funciones de transferencia del autopiloto
 
 % Hacemos barrido de ganancias de realimentación 
-K_P = 0:0.5:2;
+K_P = 0:0.25:2;
 X_AP_P = []; Y_AP_P = [];
 for i = 1:length(K_P)
     [FT_AP_CL(i), FT_AP_OL(i)] = Autopilot_FT(F_beta_target,F_r_target,G_act,...
@@ -786,8 +786,33 @@ set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
 hold on; set(gca,'XTick',[-720:45:720]); % Grados
 hold on; set(gca,'YTick',[-150:10:100]); % dB
 set(gcf,'Color',[1 1 1])
-legend('$$\omega_{wo} = \omega_{DR}/10$$','','$$\omega_{wo} = \omega_{DR}$$','',...
+legend('$$K_P = 0$$','','$$\omega_{wo} = \omega_{DR}$$','',...
     '$$\omega_{wo} = 10\omega_{DR}$$','','$$\omega_{wo} = 0$$','','Márgenes nominales'...
     ,'interpreter','latex','fontsize',12)
 grid on
 title('Diagrama de Nichols, Autopiloto Open Loop')
+
+% Elección de la ganancia de realimentación
+K_P = 0:0.25:1;         %Se han reasignado
+for i = 1:length(K_P)
+    %Llamo al modelo de simulink para los distintos valores de la ganancia
+    K_P_ = K_P(i);
+    RT_AP_K(i) = sim('modelo_AP_15',50);
+
+    figure(29)      %Beta
+    plot(RT_AP_K(i).tout,RT_AP_K(i).beta); hold on;
+    legend(K_P_)
+    figure(30)      %r
+    plot(RT_AP_K(i).tout,RT_AP_K(i).r); hold on;
+
+    figure(31)      %phi
+    plot(RT_AP_K(i).tout,RT_AP_K(i).phi); hold on;
+
+    figure(32)      %p
+    plot(RT_AP_K(i).tout,RT_AP_K(i).p); hold on;
+
+    figure(33)      %DeltaA comandado por el autopiloto
+    plot(RT_AP_K(i).tout,RT_AP_K(i).deltaA_AP); hold on;
+
+end
+

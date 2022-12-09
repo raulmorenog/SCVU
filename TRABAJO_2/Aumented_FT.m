@@ -46,8 +46,8 @@ function [FT_CL, FT_OL] = Aumented_FT(F_beta,F_r,G_act,G_gyro,G_vane,G_wash,K_DL
     
     FT_CL.beta_deltaS =  minreal(FT_CL.beta_deltaS,0.001);
     FT_CL.r_deltaS =  minreal(FT_CL.r_deltaS,0.001);
-    FT_CL.phi_deltaS =  minreal(FT_CL.phi_deltaS,0.001);
-    FT_CL.p_deltaS =  minreal(FT_CL.p_deltaS,0.001);
+    FT_CL.phi_deltaS =  minreal(FT_CL.phi_deltaS,0.01);
+    FT_CL.p_deltaS =  minreal(FT_CL.p_deltaS,0.01);
     
         % FT en lazo abierto
     FT_OL = minreal(Ga_deltaR*(Gs_beta*K_deltaRbeta*G_betaDeltaR+...

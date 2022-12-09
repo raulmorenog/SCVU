@@ -223,8 +223,8 @@ yticks(-0.5:0.5:1.5);
 axis([0 40 -0.5 1.5]);
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
 ylabel('$$p \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
-sgtitle('Variables de estado para modelo 3 gdl','interpreter','latex',...
-    'fontsize',14)
+% sgtitle('Variables de estado para modelo 3 gdl','interpreter','latex',...
+%     'fontsize',14)
 
     % Respuesta con el modelo de 1gdl
 RT_OL_133_simp = sim('modelo_convergencia_balance_1gdl',40);
@@ -252,8 +252,8 @@ yticks(-0.5:0.25:1.5);
 axis([0 40 -0.5 1.5]);
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
 ylabel('$$p \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
-sgtitle('Variables de estado para modelo 1 gld','interpreter','latex',...
-    'fontsize',14)
+% sgtitle('Variables de estado para modelo 1 gld','interpreter','latex',...
+%     'fontsize',14)
 
 
 %% SAS 
@@ -289,8 +289,8 @@ annotation('arrow',xa,ya,'color','k'); hold on;
 xa = [.8 .6]; ya = [.9 .9]; 
 annotation('arrow',xa,ya,'color','k'); hold on;
 text1 = '$$|[k_{\delta_{r}\beta}]|$$'; text2 = '$$[k_{\delta_{r}r}]$$';  
-text(0,4.78,text1,'fontsize',14,'interpreter','latex'); hold on; 
-text(0.58,2.5,text2,'fontsize',14,'interpreter','latex');
+text(0,4.78,text2,'fontsize',14,'interpreter','latex'); hold on; 
+text(0.5,2.5,text1,'fontsize',14,'interpreter','latex');
 
 xlabel('$$Re$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14); 
 ylabel('$$Im$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14);
@@ -362,6 +362,7 @@ plot(faseDeg_bode(1),modulodB_bode(1),'ro','Linewidth',2)
 hold on; 
 plot([180 180],[0 100],'k-','Linewidth',2)
 plot([-180 -180],[0 100],'k-','Linewidth',2)
+plot([360 360],[0 100],'k-','Linewidth',2)
 xlabel('Open-Loop Phase [deg]'); 
 ylabel('Open-Loop Gain [dB]');
 set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
@@ -369,10 +370,10 @@ set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
 hold on; set(gca,'XTick',[-720:45:720]); % Grados
 hold on; set(gca,'YTick',[-150:10:100]); % dB
 set(gcf,'Color',[1 1 1])
-legend('Márgenes nominales','interpreter','latex','fontsize',14,'location','best')
+legend('Margenes nominales','interpreter','latex','fontsize',14,'location','best')
 grid on
-sgtitle('Diagrama de Nichols, Planta Aumentada Open Loop',...
-    'interpreter','latex','fontsize',14)
+% sgtitle('Diagrama de Nichols, Planta Aumentada Open Loop',...
+%     'interpreter','latex','fontsize',14)
 
 [Gm,Pm,Wcg,Wcp] = margin(SAS_OL_target); % Márgenes de ganancia y fase y sus respectivas frecuencias. Ojo el Gm no esta en dB
 Margen_Ganancia = 20*log10(Gm); 
@@ -413,6 +414,7 @@ plot([180 180-45],[6 0],'r-'); hold on
 plot([180 180-45],[-6 0],'r-'); hold on
 plot([180 180],[0 100],'k-','Linewidth',2)
 plot([-180 -180],[0 100],'k-','Linewidth',2)
+plot([360 360],[0 100],'k-','Linewidth',2)
 plot([540 540],[0 100],'k-','Linewidth',2)
 xlabel('Open-Loop Phase [deg]'); 
 ylabel('Open-Loop Gain [dB]');
@@ -424,7 +426,7 @@ hold on; set(gca,'YTick',[-150:10:100]); % dB
 set(gcf,'Color',[1 1 1])
 axis([90 630 -90 90])
 grid on
-title(['Diagrama de Nichols, variaciones de $[k_{\delta_r r}]_P$'...
+sgtitle(['Nichols'...
     ' para $[k_{\delta_r \beta}]_P$ =',num2str(round(k_deltaRbeta,3))],...
     'interpreter','latex','fontsize',12)
 
@@ -451,6 +453,7 @@ plot([180 180-45],[6 0],'r-'); hold on
 plot([180 180-45],[-6 0],'r-'); hold on
 plot([180 180],[0 100],'k-','Linewidth',2)
 plot([-180 -180],[0 100],'k-','Linewidth',2)
+plot([360 360],[0 100],'k-','Linewidth',2)
 plot([540 540],[0 100],'k-','Linewidth',2)
 xlabel('Open-Loop Phase [deg]'); 
 ylabel('Open-Loop Gain [dB]');
@@ -462,7 +465,7 @@ hold on; set(gca,'YTick',[-150:10:100]); % dB
 set(gcf,'Color',[1 1 1])
 axis([90 630 -90 90])
 grid on
-title(['Diagrama de Nichols, variaciones de $[k_{\delta_r \beta}]_P$'...
+title(['Nichols'...
     ' para $[k_{\delta_r r}]_P$ =',num2str(round(k_deltaRr,3))],...
     'interpreter','latex','fontsize',12)
 
@@ -471,8 +474,8 @@ title(['Diagrama de Nichols, variaciones de $[k_{\delta_r \beta}]_P$'...
 F_beta_target = F_beta_target; % Ganancias de realimentación seleccionadas, son las seleccionadas en el barrido inicial pero se pueden cambiar.
 F_r_target = F_r_target;
 
-wDR = FT_lat.dutchroll.wn;
-w_washout_sens = [wDR/10, wDR, 10*wDR,0];
+wDR = 2.4071; %Frecuencia del DR Aumentado
+w_washout_sens = [0,wDR/5, wDR, 5*wDR];
 
 for i=1:length(w_washout_sens)
     G_washout_sens = tf([1,0],[1,w_washout_sens(i)]);
@@ -482,24 +485,26 @@ end
 
 % Lugar de las raíces
 figure(20)
-X_wo_low = real(SAS_CL_wo(1).p_deltaS.P{1,1}); 
-Y_wo_low = imag(SAS_CL_wo(1).p_deltaS.P{1,1});
-X_wo_DR = real(SAS_CL_wo(2).p_deltaS.P{1,1}); 
-Y_wo_DR = imag(SAS_CL_wo(2).p_deltaS.P{1,1}); 
-X_wo_high = real(SAS_CL_wo(3).p_deltaS.P{1,1}); 
-Y_wo_high = imag(SAS_CL_wo(3).p_deltaS.P{1,1}); 
+X_wo_low = real(SAS_CL_wo(2).r_deltaS.P{1,1}); 
+Y_wo_low = imag(SAS_CL_wo(2).r_deltaS.P{1,1});
+X_wo_DR = real(SAS_CL_wo(3).r_deltaS.P{1,1}); 
+Y_wo_DR = imag(SAS_CL_wo(3).r_deltaS.P{1,1}); 
+X_wo_high = real(SAS_CL_wo(4).r_deltaS.P{1,1}); 
+Y_wo_high = imag(SAS_CL_wo(4).r_deltaS.P{1,1}); 
 
 plot(X_wo_low,Y_wo_low,'or'); hold on                   %No se entiende nada, filtrar polos o algo.
 plot(X_wo_DR,Y_wo_DR,'og'); hold on
 plot(X_wo_high,Y_wo_high,'ob');
-title('Comparación entre polos')
-legend('$\omega_{wo} = \omega_{DR}/10$','$\omega_{wo} = \omega_{DR}$',...
-    '$\omega_{wo} = 10\omega_{DR}$','interpreter','latex','fontsize',12)
+legend('$\omega_{wo} = \omega_{DR}/5$','$\omega_{wo} = \omega_{DR}$',...
+    '$\omega_{wo} = 5\omega_{DR}$','interpreter','latex','fontsize',12)
+axis([-4 1 -2.5 2.5]);
+xlabel('$$Re$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14); 
+ylabel('$$Im$$ $$[\mathrm{s^{-1}}]$$','interpreter','latex','fontsize',14);
 grid on
 
 % Diagrama de Nichols
 figure(21)
-marker = {'b','m','g','y'};
+marker = {'b','m','g','k'};
 
 for i=1:length(w_washout_sens)
     [modulo_bode, fase_bode] = bode(SAS_OL_wo(i),{10^-3,10^4});
@@ -519,18 +524,20 @@ plot([180 180-45],[-6 0],'r-'); hold on
 
 plot([180 180],[0 100],'k-','Linewidth',2)
 plot([-180 -180],[0 100],'k-','Linewidth',2)
+plot([360 360],[0 100],'k-','Linewidth',2)
+plot([-360 -360],[0 100],'k-','Linewidth',2)
 xlabel('Open-Loop Phase [deg])'); 
 ylabel('Open-Loop Gain [dB]');
 set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
+axis([90 450 -90 90]);
 % Ticks de separacion
 hold on; set(gca,'XTick',[-720:45:720]); % Grados
 hold on; set(gca,'YTick',[-150:10:100]); % dB
 set(gcf,'Color',[1 1 1])
-legend('$$\omega_{wo} = \omega_{DR}/10$$','','$$\omega_{wo} = \omega_{DR}$$','',...
-    '$$\omega_{wo} = 10\omega_{DR}$$','','$$\omega_{wo} = 0$$','','Márgenes nominales'...
+legend('$$\omega_{wo} = 0$$','$$\omega_{wo} = \omega_{DR}/5$$','$$\omega_{wo} = \omega_{DR}$$',...
+    '$$\omega_{wo} = 5\omega_{DR}$$',''...
     ,'interpreter','latex','fontsize',12)
 grid on
-title('Diagrama de Nichols, Planta Aumentada Open Loop')
 
 % Respuesta a escalón de 20 segundos
 K_deltaRbeta = -(F_beta_target - 1)*p.Cn_beta/p.Cn_deltaR; 
@@ -543,42 +550,7 @@ for i=1:length(w_washout_sens)
     RT_SAS_135(i).phi);
 end
 
-figure(22)                              % wo = wDR/10
-subplot(2,2,1)
-plot(RT_SAS_135(1).tout,RT_SAS_135(1).beta); grid on;  % Ángulo de resbalamiento
-xticks(0:10:40);
-yticks(-0.1:0.05:0.2);
-axis([0 40 -0.05 0.2]);
-xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
-ylabel('$$\beta \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
-
-subplot(2,2,2)
-plot(RT_SAS_135(1).tout,RT_SAS_135(1).phi); grid on;   % Ángulo de balance
-xticks(0:10:40);
-yticks(0:3:15);
-axis([0 40 0 16]);
-xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
-ylabel('$$\phi \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
-
-subplot(2,2,3)
-plot(RT_SAS_135(1).tout,RT_SAS_135(1).r); grid on;      % Velocidad de guiñada
-xticks(0:10:40);
-yticks(0:0.2:1.2);
-axis([0 40 -0.1 1.2]);
-xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
-ylabel('$$r \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
-
-subplot(2,2,4)
-plot(RT_SAS_135(1).tout,RT_SAS_135(1).p);  grid on;     % Velocidad de balance
-xticks(0:10:40);
-yticks(-0.5:0.5:1.5);
-axis([0 40 -0.5 1.5]);
-xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
-ylabel('$$p \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
-sgtitle('$\omega_{wo} = \omega_{DR}/10$','interpreter','latex',...
-    'fontsize',14)
-
-figure(23)                              % wo = wDR
+figure(22)                              % wo = wDR/5
 subplot(2,2,1)
 plot(RT_SAS_135(2).tout,RT_SAS_135(2).beta); grid on;  % Ángulo de resbalamiento
 xticks(0:10:40);
@@ -610,10 +582,10 @@ yticks(-0.5:0.5:1.5);
 axis([0 40 -0.5 1.5]);
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
 ylabel('$$p \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
-sgtitle('$\omega_{wo} = \omega_{DR}$','interpreter','latex',...
+sgtitle('$\omega_{wo} = \omega_{DR}/5$','interpreter','latex',...
     'fontsize',14)
 
-figure(24)                              % wo = wDR
+figure(23)                              % wo = wDR
 subplot(2,2,1)
 plot(RT_SAS_135(3).tout,RT_SAS_135(3).beta); grid on;  % Ángulo de resbalamiento
 xticks(0:10:40);
@@ -645,10 +617,10 @@ yticks(-0.5:0.5:1.5);
 axis([0 40 -0.5 1.5]);
 xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
 ylabel('$$p \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
-sgtitle('$\omega_{wo} = 10\omega_{DR}$','interpreter','latex',...
+sgtitle('$\omega_{wo} = \omega_{DR}$','interpreter','latex',...
     'fontsize',14)
 
-figure(25)                              % wo = 0
+figure(24)                              % wo = 5wDR
 subplot(2,2,1)
 plot(RT_SAS_135(4).tout,RT_SAS_135(4).beta); grid on;  % Ángulo de resbalamiento
 xticks(0:10:40);
@@ -675,6 +647,41 @@ ylabel('$$r \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
 
 subplot(2,2,4)
 plot(RT_SAS_135(4).tout,RT_SAS_135(4).p);  grid on;     % Velocidad de balance
+xticks(0:10:40);
+yticks(-0.5:0.5:1.5);
+axis([0 40 -0.5 1.5]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$p \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
+sgtitle('$\omega_{wo} = 5\omega_{DR}$','interpreter','latex',...
+    'fontsize',14)
+
+figure(25)                              % wo = 0
+subplot(2,2,1)
+plot(RT_SAS_135(1).tout,RT_SAS_135(1).beta); grid on;  % Ángulo de resbalamiento
+xticks(0:10:40);
+yticks(-0.1:0.05:0.2);
+axis([0 40 -0.05 0.2]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$\beta \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+
+subplot(2,2,2)
+plot(RT_SAS_135(1).tout,RT_SAS_135(1).phi); grid on;   % Ángulo de balance
+xticks(0:10:40);
+yticks(0:3:15);
+axis([0 40 0 16]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$\phi \mathrm{[^o]}$$','interpreter','latex','FontSize',14)
+
+subplot(2,2,3)
+plot(RT_SAS_135(1).tout,RT_SAS_135(1).r); grid on;      % Velocidad de guiñada
+xticks(0:10:40);
+yticks(0:0.2:1.2);
+axis([0 40 -0.1 1.2]);
+xlabel('$$t \mathrm{[s]}$$','interpreter','latex','FontSize',14)
+ylabel('$$r \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
+
+subplot(2,2,4)
+plot(RT_SAS_135(1).tout,RT_SAS_135(1).p);  grid on;     % Velocidad de balance
 xticks(0:10:40);
 yticks(-0.5:0.5:1.5);
 axis([0 40 -0.5 1.5]);
@@ -735,7 +742,7 @@ sgtitle('$\omega_{wo} = 0.8\omega_{DR}$','interpreter','latex',...
 % Autopilot_FT me saca las funciones de transferencia del autopiloto
 
 % Hacemos barrido de ganancias de realimentación 
-K_P = 0:0.5:2;
+K_P = 0:0.25:2;
 X_AP_P = []; Y_AP_P = [];
 for i = 1:length(K_P)
     [FT_AP_CL(i), FT_AP_OL(i)] = Autopilot_FT(F_beta_target,F_r_target,G_act,...
@@ -779,8 +786,33 @@ set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
 hold on; set(gca,'XTick',[-720:45:720]); % Grados
 hold on; set(gca,'YTick',[-150:10:100]); % dB
 set(gcf,'Color',[1 1 1])
-legend('$$\omega_{wo} = \omega_{DR}/10$$','','$$\omega_{wo} = \omega_{DR}$$','',...
+legend('$$K_P = $$'0,'','$$\omega_{wo} = \omega_{DR}$$','',...
     '$$\omega_{wo} = 10\omega_{DR}$$','','$$\omega_{wo} = 0$$','','Márgenes nominales'...
     ,'interpreter','latex','fontsize',12)
 grid on
 title('Diagrama de Nichols, Autopiloto Open Loop')
+
+% Elección de la ganancia de realimentación
+K_P = 0:0.25:1;         %Se han reasignado
+for i = 1:length(K_P)
+    %Llamo al modelo de simulink para los distintos valores de la ganancia
+    K_P_ = K_P(i);
+    RT_AP_K(i) = sim('modelo_AP_15',50);
+
+    figure(29)      %Beta
+    plot(RT_AP_K(i).tout,RT_AP_K(i).beta); hold on;
+    
+    figure(30)      %r
+    plot(RT_AP_K(i).tout,RT_AP_K(i).r); hold on;
+
+    figure(31)      %phi
+    plot(RT_AP_K(i).tout,RT_AP_K(i).phi); hold on;
+
+    figure(32)      %p
+    plot(RT_AP_K(i).tout,RT_AP_K(i).p); hold on;
+
+    figure(33)      %DeltaA comandado por el autopiloto
+    plot(RT_AP_K(i).tout,RT_AP_K(i).deltaA_AP); hold on;
+
+end
+
