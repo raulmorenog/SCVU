@@ -727,15 +727,15 @@ ylabel('$$p \mathrm{[^o/s]}$$','interpreter','latex','FontSize',14)
 sgtitle('$\omega_{wo} = 0.8\omega_{DR}$','interpreter','latex',...
     'fontsize',14)
 
-%Por tanto, como resultado final de FT tenemos:
+% Por tanto, como resultado final de FT tenemos:
 [FT_SAS_CL, FT_SAS_OL] = Aumented_FT(F_beta_target, F_r_target,G_act,G_gyro,...
     G_vane,G_washout,K_DL,p,FT_lat);        %% FT del SAS definitivas 
 
 %% AUTOPILOTO
-%No me interesa el Direct link, dejo el actuador dentro del SAS. La función
-%Autopilot_FT me saca las funciones de transferencia del autopiloto
+% No me interesa el Direct link, dejo el actuador dentro del SAS. La función
+% Autopilot_FT me saca las funciones de transferencia del autopiloto
 
-%Hacemos barrido de ganancias de realimentación 
+% Hacemos barrido de ganancias de realimentación 
 K_P = 0:0.5:2;
 X_AP_P = []; Y_AP_P = [];
 for i = 1:length(K_P)
@@ -746,7 +746,7 @@ for i = 1:length(K_P)
     Y_AP_P = [Y_AP_P; imag(FT_AP_CL(i).phi.P{1,1})]; 
 end
 
-%Lugar de las raices
+% Lugar de las raices
 figure(27)
 plot(X_AP_P,Y_AP_P,'xr')
 grid on
