@@ -742,7 +742,7 @@ sgtitle('$\omega_{wo} = 0.8\omega_{DR}$','interpreter','latex',...
 % Autopilot_FT me saca las funciones de transferencia del autopiloto
 
 % Hacemos barrido de ganancias de realimentación 
-K_P = 0:0.25:2;
+K_P = 0.25:0.25:2.25;
 X_AP_P = []; Y_AP_P = [];
 for i = 1:length(K_P)
     [FT_AP_CL(i), FT_AP_OL(i)] = Autopilot_FT(F_beta_target,F_r_target,G_act,...
@@ -759,17 +759,14 @@ grid on
 
 % Diagrama de Nichols
 figure(28)
-%marker = {'b','m','g','y'};
-
 for i=1:length(K_P)
-    
     [modulo_bode, fase_bode] = bode(FT_AP_OL(i),{10^-3,10^4});
     modulodB_bode = squeeze(20*log10(modulo_bode));
     faseDeg_bode = squeeze(fase_bode);
    
     plot(faseDeg_bode,modulodB_bode,'Linewidth',1)
     grid on; hold on; 
-    %plot(faseDeg_bode(1),modulodB_bode(1),'ro','Linewidth',1)   %Quitar estos markers tal ve 
+    lg{i} = ['$K_P$ = ',num2str(round(K_P(i),3))];
 end
 
 plot([180 180+45],[6 0],'r-'); hold on
@@ -779,40 +776,64 @@ plot([180 180-45],[-6 0],'r-'); hold on
 
 plot([180 180],[0 100],'k-','Linewidth',2)
 plot([-180 -180],[0 100],'k-','Linewidth',2)
+plot([360 360],[0 100],'k-','Linewidth',2)
 xlabel('Open-Loop Phase [deg])'); 
 ylabel('Open-Loop Gain [dB]');
-set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
+
 % Ticks de separacion
 hold on; set(gca,'XTick',[-720:45:720]); % Grados
 hold on; set(gca,'YTick',[-150:10:100]); % dB
-set(gcf,'Color',[1 1 1])
-legend('$$K_P = 0$$','','$$\omega_{wo} = \omega_{DR}$$','',...
-    '$$\omega_{wo} = 10\omega_{DR}$$','','$$\omega_{wo} = 0$$','','Márgenes nominales'...
-    ,'interpreter','latex','fontsize',12)
+% set(gcf,'Color',[1 1 1])
+axis([0 540 -150 100])
+legend(lg,'interpreter','latex','fontsize',12,'location','best')
 grid on
-title('Diagrama de Nichols, Autopiloto Open Loop')
+sgtitle('Nichols, Autopiloto Open Loop','interpreter','latex','fontsize',12)
 
 % Elección de la ganancia de realimentación
-K_P = 0:0.25:1;         %Se han reasignado
+K_P = 0.15:0.15:0.75;         % Se han reasignado
 for i = 1:length(K_P)
     %Llamo al modelo de simulink para los distintos valores de la ganancia
     K_P_ = K_P(i);
+    lg{i} = ['$K_P$ = ',num2str(round(K_P(i),3))];
     RT_AP_K(i) = sim('modelo_AP_15',50);
-
-    figure(29)      %Beta
-    plot(RT_AP_K(i).tout,RT_AP_K(i).beta); hold on;
-    legend(K_P_)
-    figure(30)      %r
-    plot(RT_AP_K(i).tout,RT_AP_K(i).r); hold on;
-
-    figure(31)      %phi
-    plot(RT_AP_K(i).tout,RT_AP_K(i).phi); hold on;
-
-    figure(32)      %p
-    plot(RT_AP_K(i).tout,RT_AP_K(i).p); hold on;
-
-    figure(33)      %DeltaA comandado por el autopiloto
-    plot(RT_AP_K(i).tout,RT_AP_K(i).deltaA_AP); hold on;
-
+end 
+iFig = 29;
+for j = 1:5
+    figure(iFig)
+    for i = 1:length(K_P)
+        if j == 1
+            plot(RT_AP_K(i).tout,RT_AP_K(i).beta,'-'); hold on;
+            xlabel('Tiempo [s]','interpreter','latex','fontsize',14)
+            ylabel('$\beta$ $[\mathrm{^\circ}]$','interpreter','latex',...
+                'fontsize',14)
+            legend(lg,'interpreter','latex','fontsize',14,'location','best')
+        elseif j == 2
+            plot(RT_AP_K(i).tout,RT_AP_K(i).r,'-'); hold on;
+            xlabel('Tiempo [s]','interpreter','latex','fontsize',14)
+            ylabel('$r$ $[\mathrm{^\circ/s}]$','interpreter','latex',...
+                'fontsize',14)
+            legend(lg,'interpreter','latex','fontsize',14,'location','best')
+        elseif j == 3
+            plot(RT_AP_K(i).tout,RT_AP_K(i).phi,'-'); hold on;
+            xlabel('Tiempo [s]','interpreter','latex','fontsize',14)
+            ylabel('$\phi$ $[\mathrm{^\circ}]$','interpreter','latex',...
+                'fontsize',14)
+            legend(lg,'interpreter','latex','fontsize',14,'location','best')
+        elseif j == 4
+            plot(RT_AP_K(i).tout,RT_AP_K(i).p,'-'); hold on;
+            xlabel('Tiempo [s]','interpreter','latex','fontsize',14)
+            ylabel('$p$ $[\mathrm{^\circ/s}]$','interpreter','latex',...
+                'fontsize',14)
+            legend(lg,'interpreter','latex','fontsize',14,'location','best')
+        elseif j == 5
+            plot(RT_AP_K(i).tout,RT_AP_K(i).deltaA_AP,'-'); hold on;
+            xlabel('Tiempo [s]','interpreter','latex','fontsize',14)
+            ylabel('${\delta_a}_{cmd}$ $[\mathrm{^\circ}]$','interpreter','latex',...
+                'fontsize',14)
+            legend(lg,'interpreter','latex','fontsize',14,'location','best')  
+        else
+        end
+    end
+    iFig = iFig+1;
 end
 
