@@ -740,29 +740,43 @@ sgtitle('$\omega_{wo} = 0.8\omega_{DR}$','interpreter','latex',...
 % Autopilot_FT me saca las funciones de transferencia del autopiloto
 
 % Hacemos barrido de ganancias de realimentación 
-K_P = 0.25:0.25:2;
+K_P_p_deltaA = 0.15:0.20:1.15;
 X_AP_P = []; Y_AP_P = [];
-for i = 1:length(K_P)
-    [FT_AP_CL(i), FT_AP_OL(i)] = Autopilot_FT(F_beta_target,F_r_target,G_act,...
-        G_gyro,G_vane,G_washout,p,FT_lat,K_P(i));
+for i = 1:length(K_P_p_deltaA)
+    [FT_AP_CL_1(i), FT_AP_OL_1(i)] = Autopilot_FT(F_beta_target,F_r_target,G_act,...
+        G_gyro,G_vane,G_washout,p,FT_lat,K_P_p_deltaA(i));
     %Saco los polos de la función de phi de lazo cerrado
-    X_AP_P = [X_AP_P; real(FT_AP_CL(i).phi.P{1,1})]; 
-    Y_AP_P = [Y_AP_P; imag(FT_AP_CL(i).phi.P{1,1})]; 
+    X_AP_P = [X_AP_P; real(FT_AP_CL_1(i).p.P{1,1})]; 
+    Y_AP_P = [Y_AP_P; imag(FT_AP_CL_1(i).p.P{1,1})]; 
 end
-XAP = zeros(10,8); YAP = zeros(10,8); 
-XAP(:,1) = X_AP_P(1:10); YAP(:,1) = Y_AP_P(1:10);
-XAP(:,2) = X_AP_P(11:20); YAP(:,2) = Y_AP_P(11:20);
-XAP(:,3) = X_AP_P(21:30); YAP(:,3) = Y_AP_P(21:30);
-XAP(:,4) = X_AP_P(31:40); YAP(:,4) = Y_AP_P(31:40);
-XAP(:,5) = X_AP_P(41:50); YAP(:,5) = Y_AP_P(41:50);
-XAP(:,6) = X_AP_P(51:60); YAP(:,6) = Y_AP_P(51:60);
-XAP(:,7) = X_AP_P(61:70); YAP(:,7) = Y_AP_P(61:70);
-XAP(:,8) = X_AP_P(71:80); YAP(:,8) = Y_AP_P(71:80);
 
-% Lugar de las raices
+%ELEGIMOS K_P_p_deltaA = 0.75 (i = 4)
+
+K_P_phi_p = 0.25:0.25:2.25;
+X_AP_P_2 = []; Y_AP_P_2 = [];
+for i = 1:length(K_P_phi_p)
+    [FT_AP_CL_2(i), FT_AP_OL_2(i)] = Autopilot_FT_2(FT_AP_CL_1(4),G_gyro,K_P_phi_p(i));
+    %Saco los polos de la función de phi de lazo cerrado
+    X_AP_P_2 = [X_AP_P_2; real(FT_AP_CL_2(i).phi.P{1,1})]; 
+    Y_AP_P_2 = [Y_AP_P_2; imag(FT_AP_CL_2(i).phi.P{1,1})]; 
+end
+
+
+% Lugar de las raices p
+
+XAP = zeros(13,length(K_P_p_deltaA)); YAP = zeros(13,length(K_P_p_deltaA)); 
+XAP(:,1) = X_AP_P(1:13); YAP(:,1) = Y_AP_P(1:13);
+XAP(:,2) = X_AP_P(14:26); YAP(:,2) = Y_AP_P(14:26);
+XAP(:,3) = X_AP_P(27:39); YAP(:,3) = Y_AP_P(27:39);
+XAP(:,4) = X_AP_P(40:52); YAP(:,4) = Y_AP_P(40:52);
+XAP(:,5) = X_AP_P(53:65); YAP(:,5) = Y_AP_P(53:65);
+XAP(:,6) = X_AP_P(66:78); YAP(:,6) = Y_AP_P(66:78);
+% XAP(:,7) = X_AP_P(61:70); YAP(:,7) = Y_AP_P(61:70);
+% XAP(:,8) = X_AP_P(71:80); YAP(:,8) = Y_AP_P(71:80);
+
 figure(27)
 marker = {'xr','xy','xc','xg','xb','xb','xk','xk','xm','xm'};
-for i = 1:10
+for i = 1:13
     plot(XAP(i,:),YAP(i,:),marker{i},'markersize',6)
     grid on; hold on;
 end
@@ -778,16 +792,16 @@ annotation('arrow',xa,ya,'color','k'); hold on; % Verde
 xlabel('$Re$ $[\mathrm{s^{-1}}]$','interpreter','latex','fontsize',14); 
 ylabel('$Im$ $[\mathrm{s^{-1}}]$','interpreter','latex','fontsize',14);
 
-% Diagrama de Nichols
+% Diagrama de Nichols P
 figure(28)
-for i=1:length(K_P)
-    [modulo_bode, fase_bode] = bode(FT_AP_OL(i),{10^-3,10^4});
+for i=1:length(K_P_p_deltaA)
+    [modulo_bode, fase_bode] = bode(FT_AP_OL_1(i),{10^-3,10^4});
     modulodB_bode = squeeze(20*log10(modulo_bode));
     faseDeg_bode = squeeze(fase_bode);
    
     plot(faseDeg_bode,modulodB_bode,'Linewidth',1)
     grid on; hold on; 
-    lg{i} = ['$K_P$ = ',num2str(round(K_P(i),3))];
+    lg_p{i} = ['$K_P$ = ',num2str(round(K_P_p_deltaA(i),3))];
 end
 
 plot([180 180+45],[6 0],'r-'); hold on
@@ -805,23 +819,20 @@ ylabel('Open-Loop Gain [dB]','interpreter','latex','fontsize',14);
 hold on; set(gca,'XTick',[-720:45:720]); % Grados
 hold on; set(gca,'YTick',[-150:10:100]); % dB
 axis([0 540 -150 100])
-legend(lg,'interpreter','latex','fontsize',12,'location','best')
+legend(lg_p,'interpreter','latex','fontsize',12,'location','best')
 grid on
 sgtitle('Nichols, Autopiloto Open Loop','interpreter','latex','fontsize',12)
 
-% Elección de la ganancia de realimentación (barrido más fino)
-K_P = 0.05:0.10:0.65;         % Se han reasignado
-
-% Diagrama de Nichols
+% Diagrama de Nichols Phi
 figure(29)
-for i=1:length(K_P)
-    [modulo_bode, fase_bode] = bode(FT_AP_OL(i),{10^-3,10^4});
+for i=1:length(K_P_phi_p)
+    [modulo_bode, fase_bode] = bode(FT_AP_OL_2(i),{10^-3,10^4});
     modulodB_bode = squeeze(20*log10(modulo_bode));
     faseDeg_bode = squeeze(fase_bode);
    
     plot(faseDeg_bode,modulodB_bode,'Linewidth',1)
     grid on; hold on; 
-    lgd{i} = ['$K_P$ = ',num2str(round(K_P(i),3))];
+    lg_phi{i} = ['$K_P$ = ',num2str(round(K_P_phi_p(i),3))];
 end
 
 plot([180 180+45],[6 0],'r-'); hold on
@@ -837,8 +848,8 @@ ylabel('Open-Loop Gain [dB]','interpreter','latex','fontsize',14);
 % Ticks de separacion
 hold on; set(gca,'XTick',[-720:45:720]); % Grados
 hold on; set(gca,'YTick',[-150:10:100]); % dB
-axis([0 540 -150 100])
-legend(lgd,'interpreter','latex','fontsize',12,'location','best')
+axis([0 360 -150 100])
+legend(lg_phi,'interpreter','latex','fontsize',12,'location','best')
 grid on
 sgtitle('Nichols, Autopiloto Open Loop','interpreter','latex','fontsize',12)
 
