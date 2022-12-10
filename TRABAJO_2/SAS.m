@@ -362,9 +362,9 @@ plot(faseDeg_bode(1),modulodB_bode(1),'ro','Linewidth',2)
 hold on; 
 plot([180 180],[0 100],'k-','Linewidth',2)
 plot([-180 -180],[0 100],'k-','Linewidth',2)
-plot([360 360],[0 100],'k-','Linewidth',2)
-xlabel('Open-Loop Phase [deg]'); 
-ylabel('Open-Loop Gain [dB]');
+plot([540 540],[0 100],'k-','Linewidth',2)
+xlabel('Open-Loop Phase [deg]','interpreter','latex','fontsize',14); 
+ylabel('Open-Loop Gain [dB]','interpreter','latex','fontsize',14);
 set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
 % Ticks de separacion
 hold on; set(gca,'XTick',[-720:45:720]); % Grados
@@ -414,17 +414,16 @@ plot([180 180-45],[6 0],'r-'); hold on
 plot([180 180-45],[-6 0],'r-'); hold on
 plot([180 180],[0 100],'k-','Linewidth',2)
 plot([-180 -180],[0 100],'k-','Linewidth',2)
-plot([360 360],[0 100],'k-','Linewidth',2)
 plot([540 540],[0 100],'k-','Linewidth',2)
-xlabel('Open-Loop Phase [deg]'); 
-ylabel('Open-Loop Gain [dB]');
+xlabel('Open-Loop Phase [deg]','interpreter','latex','fontsize',14); 
+ylabel('Open-Loop Gain [dB]','interpreter','latex','fontsize',14);
 legend(lg,'interpreter','latex','fontsize',12,'location','best')
 
 % Ticks de separacion
 hold on; set(gca,'XTick',[-720:45:720]); % Grados
 hold on; set(gca,'YTick',[-150:10:100]); % dB
 set(gcf,'Color',[1 1 1])
-axis([90 630 -90 90])
+axis([50 630 -90 90])
 grid on
 sgtitle(['Nichols'...
     ' para $[k_{\delta_r \beta}]_P$ =',num2str(round(k_deltaRbeta,3))],...
@@ -453,17 +452,16 @@ plot([180 180-45],[6 0],'r-'); hold on
 plot([180 180-45],[-6 0],'r-'); hold on
 plot([180 180],[0 100],'k-','Linewidth',2)
 plot([-180 -180],[0 100],'k-','Linewidth',2)
-plot([360 360],[0 100],'k-','Linewidth',2)
 plot([540 540],[0 100],'k-','Linewidth',2)
-xlabel('Open-Loop Phase [deg]'); 
-ylabel('Open-Loop Gain [dB]');
+xlabel('Open-Loop Phase [deg]','interpreter','latex','fontsize',14); 
+ylabel('Open-Loop Gain [dB]','interpreter','latex','fontsize',14);
 legend(lg_2,'interpreter','latex','fontsize',12,'location','best')
 
 % Ticks de separacion
 hold on; set(gca,'XTick',[-720:45:720]); % Grados
 hold on; set(gca,'YTick',[-150:10:100]); % dB
 set(gcf,'Color',[1 1 1])
-axis([90 630 -90 90])
+axis([50 630 -90 90])
 grid on
 title(['Nichols'...
     ' para $[k_{\delta_r r}]_P$ =',num2str(round(k_deltaRr,3))],...
@@ -524,12 +522,12 @@ plot([180 180-45],[-6 0],'r-'); hold on
 
 plot([180 180],[0 100],'k-','Linewidth',2)
 plot([-180 -180],[0 100],'k-','Linewidth',2)
-plot([360 360],[0 100],'k-','Linewidth',2)
-plot([-360 -360],[0 100],'k-','Linewidth',2)
-xlabel('Open-Loop Phase [deg])'); 
-ylabel('Open-Loop Gain [dB]');
+plot([540 540],[0 100],'k-','Linewidth',2)
+plot([-540 -540],[0 100],'k-','Linewidth',2)
+xlabel('Open-Loop Phase [deg]','interpreter','latex','fontsize',14); 
+ylabel('Open-Loop Gain [dB]','interpreter','latex','fontsize',14);
 set(gca,'XLim',[min(faseDeg_bode) max(faseDeg_bode)]);
-axis([90 450 -90 90]);
+axis([50 540 -120 90]);
 % Ticks de separacion
 hold on; set(gca,'XTick',[-720:45:720]); % Grados
 hold on; set(gca,'YTick',[-150:10:100]); % dB
@@ -799,9 +797,9 @@ plot([180 180-45],[-6 0],'r-'); hold on
 
 plot([180 180],[0 100],'k-','Linewidth',2)
 plot([-180 -180],[0 100],'k-','Linewidth',2)
-plot([360 360],[0 100],'k-','Linewidth',2)
-xlabel('Open-Loop Phase [deg])'); 
-ylabel('Open-Loop Gain [dB]');
+plot([540 540],[0 100],'k-','Linewidth',2)
+xlabel('Open-Loop Phase [deg]','interpreter','latex','fontsize',14); 
+ylabel('Open-Loop Gain [dB]','interpreter','latex','fontsize',14);
 
 % Ticks de separacion
 hold on; set(gca,'XTick',[-720:45:720]); % Grados
@@ -833,9 +831,9 @@ plot([180 180-45],[-6 0],'r-'); hold on
 
 plot([180 180],[0 100],'k-','Linewidth',2)
 plot([-180 -180],[0 100],'k-','Linewidth',2)
-plot([360 360],[0 100],'k-','Linewidth',2)
-xlabel('Open-Loop Phase [deg])'); 
-ylabel('Open-Loop Gain [dB]');
+plot([540 540],[0 100],'k-','Linewidth',2)
+xlabel('Open-Loop Phase [deg]','interpreter','latex','fontsize',14); 
+ylabel('Open-Loop Gain [dB]','interpreter','latex','fontsize',14);
 % Ticks de separacion
 hold on; set(gca,'XTick',[-720:45:720]); % Grados
 hold on; set(gca,'YTick',[-150:10:100]); % dB
