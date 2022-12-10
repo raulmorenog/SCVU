@@ -745,52 +745,10 @@ X_AP_P = []; Y_AP_P = [];
 for i = 1:length(K_P_p_deltaA)
     [FT_AP_CL_1(i), FT_AP_OL_1(i)] = Autopilot_FT(F_beta_target,F_r_target,G_act,...
         G_gyro,G_vane,G_washout,p,FT_lat,K_P_p_deltaA(i));
-    %Saco los polos de la función de phi de lazo cerrado
+    %Saco los polos de la función de p de lazo cerrado
     X_AP_P = [X_AP_P; real(FT_AP_CL_1(i).p.P{1,1})]; 
     Y_AP_P = [Y_AP_P; imag(FT_AP_CL_1(i).p.P{1,1})]; 
 end
-
-% ELEGIMOS K_P_p_deltaA = 0.55 (i = 3)
-
-K_P_phi_p = 0.05:0.15:0.8;
-X_AP_P_2 = []; Y_AP_P_2 = [];
-for i = 1:length(K_P_phi_p)
-    [FT_AP_CL_2(i), FT_AP_OL_2(i)] = Autopilot_FT_2(FT_AP_CL_1(3),G_gyro,K_P_phi_p(i));
-    %Saco los polos de la función de phi de lazo cerrado
-    X_AP_P_2 = [X_AP_P_2; real(FT_AP_CL_2(i).phi.P{1,1})]; 
-    Y_AP_P_2 = [Y_AP_P_2; imag(FT_AP_CL_2(i).phi.P{1,1})]; 
-end
-
-
-% % Lugar de las raices p
-% 
-% XAP = zeros(13,length(K_P_p_deltaA)); YAP = zeros(13,length(K_P_p_deltaA)); 
-% XAP(:,1) = X_AP_P(1:13); YAP(:,1) = Y_AP_P(1:13);
-% XAP(:,2) = X_AP_P(14:26); YAP(:,2) = Y_AP_P(14:26);
-% XAP(:,3) = X_AP_P(27:39); YAP(:,3) = Y_AP_P(27:39);
-% XAP(:,4) = X_AP_P(40:52); YAP(:,4) = Y_AP_P(40:52);
-% XAP(:,5) = X_AP_P(53:65); YAP(:,5) = Y_AP_P(53:65);
-% XAP(:,6) = X_AP_P(66:78); YAP(:,6) = Y_AP_P(66:78);
-% % XAP(:,7) = X_AP_P(61:70); YAP(:,7) = Y_AP_P(61:70);
-% % XAP(:,8) = X_AP_P(71:80); YAP(:,8) = Y_AP_P(71:80);
-
-% figure(27)
-% marker = {'xr','xy','xc','xg','xb','xb','xk','xk','xm','xm'};
-% for i = 1:13
-%     plot(XAP(i,:),YAP(i,:),marker{i},'markersize',6)
-%     grid on; hold on;
-% end
-% xa = [.83 .85]; ya = [.68 .9]; 
-% annotation('arrow',xa,ya,'color','k'); hold on; % Azul
-% xa = [.7 .73]; ya = [.58 .67]; 
-% annotation('arrow',xa,ya,'color','k'); hold on; % Rosa
-% xa = [.3 .18]; ya = [.54 0.54]; 
-% annotation('arrow',xa,ya,'color','k'); hold on; % Rojo
-% xa = [.73 .68]; ya = [.54 0.54]; 
-% annotation('arrow',xa,ya,'color','k'); hold on; % Verde
-% 
-% xlabel('$Re$ $[\mathrm{s^{-1}}]$','interpreter','latex','fontsize',14); 
-% ylabel('$Im$ $[\mathrm{s^{-1}}]$','interpreter','latex','fontsize',14);
 
 % Diagrama de Nichols P
 figure(28)
@@ -822,6 +780,50 @@ axis([0 540 -150 100])
 legend(lg_p,'interpreter','latex','fontsize',12,'location','best')
 grid on
 sgtitle('Nichols, Inner Loop','interpreter','latex','fontsize',12)
+
+
+
+% ELEGIMOS K_P_p_deltaA = 0.55 (i = 3)
+
+K_P_phi_p = 0.05:0.15:0.8;
+X_AP_P_2 = []; Y_AP_P_2 = [];
+for i = 1:length(K_P_phi_p)
+    [FT_AP_CL_2(i), FT_AP_OL_2(i)] = Autopilot_FT_2(FT_AP_CL_1(3),G_gyro,K_P_phi_p(i));
+    %Saco los polos de la función de phi de lazo cerrado
+    X_AP_P_2 = [X_AP_P_2; real(FT_AP_CL_2(i).phi.P{1,1})]; 
+    Y_AP_P_2 = [Y_AP_P_2; imag(FT_AP_CL_2(i).phi.P{1,1})]; 
+end
+
+% % Lugar de las raices p
+% 
+% XAP = zeros(13,length(K_P_p_deltaA)); YAP = zeros(13,length(K_P_p_deltaA)); 
+% XAP(:,1) = X_AP_P(1:13); YAP(:,1) = Y_AP_P(1:13);
+% XAP(:,2) = X_AP_P(14:26); YAP(:,2) = Y_AP_P(14:26);
+% XAP(:,3) = X_AP_P(27:39); YAP(:,3) = Y_AP_P(27:39);
+% XAP(:,4) = X_AP_P(40:52); YAP(:,4) = Y_AP_P(40:52);
+% XAP(:,5) = X_AP_P(53:65); YAP(:,5) = Y_AP_P(53:65);
+% XAP(:,6) = X_AP_P(66:78); YAP(:,6) = Y_AP_P(66:78);
+% % XAP(:,7) = X_AP_P(61:70); YAP(:,7) = Y_AP_P(61:70);
+% % XAP(:,8) = X_AP_P(71:80); YAP(:,8) = Y_AP_P(71:80);
+
+% figure(27)
+% marker = {'xr','xy','xc','xg','xb','xb','xk','xk','xm','xm'};
+% for i = 1:13
+%     plot(XAP(i,:),YAP(i,:),marker{i},'markersize',6)
+%     grid on; hold on;
+% end
+% xa = [.83 .85]; ya = [.68 .9]; 
+% annotation('arrow',xa,ya,'color','k'); hold on; % Azul
+% xa = [.7 .73]; ya = [.58 .67]; 
+% annotation('arrow',xa,ya,'color','k'); hold on; % Rosa
+% xa = [.3 .18]; ya = [.54 0.54]; 
+% annotation('arrow',xa,ya,'color','k'); hold on; % Rojo
+% xa = [.73 .68]; ya = [.54 0.54]; 
+% annotation('arrow',xa,ya,'color','k'); hold on; % Verde
+% 
+% xlabel('$Re$ $[\mathrm{s^{-1}}]$','interpreter','latex','fontsize',14); 
+% ylabel('$Im$ $[\mathrm{s^{-1}}]$','interpreter','latex','fontsize',14);
+
 
 % Diagrama de Nichols Phi
 figure(29)
@@ -863,7 +865,7 @@ for i = 1:length(K_P_phi_p)
     RT_AP_K(i) = sim('modelo_AP_15_cascada',50);
     [rise_timeAP(i), time_delayAP(i)] = rise_delay(RT_AP_K(i).tout,...
     RT_AP_K(i).phi);
-    DeltaSS_AP(i) = 15-RT_AP_K(i).phi(end);
+    DeltaSS_AP(i) = 15-RT_AP_K(i).phi(end); % Error estacionario de phi
 end
 
 iFig = 30;
