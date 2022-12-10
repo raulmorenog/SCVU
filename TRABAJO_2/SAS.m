@@ -739,11 +739,13 @@ sgtitle('$\omega_{wo} = 0.8\omega_{DR}$','interpreter','latex',...
 % No me interesa el Direct link, dejo el actuador dentro del SAS. La función
 % Autopilot_FT me saca las funciones de transferencia del autopiloto
 
-% Hacemos barrido de ganancias de realimentación 
+    %%% Un lazo único de autopiloto
+% Hacemos barrido de ganancias de realimentación para autopiloto con un
+% lazo
 K_P_p_deltaA = 0.15:0.20:1.15;
 X_AP_P = []; Y_AP_P = [];
 for i = 1:length(K_P_p_deltaA)
-    [FT_AP_CL_1(i), FT_AP_OL_1(i)] = Autopilot_FT(F_beta_target,F_r_target,G_act,...
+    [FT_AP_CL_1(i), FT_AP_OL_1(i)] = Autopilot1_FT(F_beta_target,F_r_target,G_act,...
         G_gyro,G_vane,G_washout,p,FT_lat,K_P_p_deltaA(i));
     %Saco los polos de la función de p de lazo cerrado
     X_AP_P = [X_AP_P; real(FT_AP_CL_1(i).p.P{1,1})]; 
@@ -759,7 +761,51 @@ for i=1:length(K_P_p_deltaA)
    
     plot(faseDeg_bode,modulodB_bode,'Linewidth',1)
     grid on; hold on; 
-    lg_p{i} = ['$K_P$ = ',num2str(round(K_P_p_deltaA(i),3))];
+    lg_p{i} = ['$[K_{\delta_a p}]_P$ = ',num2str(round(K_P_p_deltaA(i),3))];
+end
+
+plot([180 180+45],[6 0],'r-'); hold on
+plot([180 180+45],[-6 0],'r-'); hold on
+plot([180 180-45],[6 0],'r-'); hold on
+plot([180 180-45],[-6 0],'r-'); hold on
+
+plot([180 180],[0 100],'k-','Linewidth',2)
+plot([-180 -180],[0 100],'k-','Linewidth',2)
+plot([540 540],[0 100],'k-','Linewidth',2)
+xlabel('Open-Loop Phase [deg]','interpreter','latex','fontsize',14); 
+ylabel('Open-Loop Gain [dB]','interpreter','latex','fontsize',14);
+
+% Ticks de separacion
+hold on; set(gca,'XTick',[-720:45:720]); % Grados
+hold on; set(gca,'YTick',[-150:10:100]); % dB
+axis([0 540 -150 100])
+legend(lg_p,'interpreter','latex','fontsize',12,'location','best')
+grid on
+sgtitle('Nichols, Autopiloto','interpreter','latex','fontsize',12)
+
+    %%% Un lazo interno y uno externo de autopiloto
+% Hacemos barrido de ganancias de realimentación para autopiloto con dos
+% lazos
+K_P_p_deltaA = 0.15:0.20:1.15;
+X_AP_P = []; Y_AP_P = [];
+for i = 1:length(K_P_p_deltaA)
+    [FT_AP_CL_1(i), FT_AP_OL_1(i)] = Autopilot_FT(F_beta_target,F_r_target,G_act,...
+        G_gyro,G_vane,G_washout,p,FT_lat,K_P_p_deltaA(i));
+    %Saco los polos de la función de p de lazo cerrado
+    X_AP_P = [X_AP_P; real(FT_AP_CL_1(i).p.P{1,1})]; 
+    Y_AP_P = [Y_AP_P; imag(FT_AP_CL_1(i).p.P{1,1})]; 
+end
+
+% Diagrama de Nichols P
+figure(29)
+for i=1:length(K_P_p_deltaA)
+    [modulo_bode, fase_bode] = bode(FT_AP_OL_1(i),{10^-3,10^4});
+    modulodB_bode = squeeze(20*log10(modulo_bode));
+    faseDeg_bode = squeeze(fase_bode);
+   
+    plot(faseDeg_bode,modulodB_bode,'Linewidth',1)
+    grid on; hold on; 
+    lg_p{i} = ['$[K_{\delta_a p}]_P$ = ',num2str(round(K_P_p_deltaA(i),3))];
 end
 
 plot([180 180+45],[6 0],'r-'); hold on
@@ -780,8 +826,6 @@ axis([0 540 -150 100])
 legend(lg_p,'interpreter','latex','fontsize',12,'location','best')
 grid on
 sgtitle('Nichols, Inner Loop','interpreter','latex','fontsize',12)
-
-
 
 % ELEGIMOS K_P_p_deltaA = 0.55 (i = 3)
 
@@ -826,7 +870,7 @@ end
 
 
 % Diagrama de Nichols Phi
-figure(29)
+figure(30)
 for i=1:length(K_P_phi_p)
     [modulo_bode, fase_bode] = bode(FT_AP_OL_2(i),{10^-3,10^4});
     modulodB_bode = squeeze(20*log10(modulo_bode));
@@ -834,7 +878,7 @@ for i=1:length(K_P_phi_p)
    
     plot(faseDeg_bode,modulodB_bode,'Linewidth',1)
     grid on; hold on; 
-    lg_phi{i} = ['$K_P$ = ',num2str(round(K_P_phi_p(i),3))];
+    lg_phi{i} = ['$[K_{p \phi}]_P$ = ',num2str(round(K_P_phi_p(i),3))];
 end
 
 plot([180 180+45],[6 0],'r-'); hold on
@@ -861,14 +905,14 @@ KP_p_deltaA = 0.55;
 for i = 1:length(K_P_phi_p)
     % Llamo al modelo de simulink para los distintos valores de la ganancia
     KP_phi_p = K_P_phi_p(i);
-    lgd{i} = ['$K_P$ = ',num2str(round(KP_phi_p,3))];
+    lgd{i} = ['$[K_{p \phi}]_P$ = ',num2str(round(KP_phi_p,3))];
     RT_AP_K(i) = sim('modelo_AP_15_cascada',50);
     [rise_timeAP(i), time_delayAP(i)] = rise_delay(RT_AP_K(i).tout,...
     RT_AP_K(i).phi);
     DeltaSS_AP(i) = 15-RT_AP_K(i).phi(end); % Error estacionario de phi
 end
 
-iFig = 30;
+iFig = 31;
 for j = 1:5
     figure(iFig)
     for i = 1:length(K_P_phi_p)

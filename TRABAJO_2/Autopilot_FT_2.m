@@ -1,3 +1,5 @@
+%% Función de cálculo de las FT del autopiloto para el outer-loop
+
 function [FT_AP_CL_2, FT_AP_OL_2] = Autopilot_FT_2(FT_AP_CL_1,G_gyro,K_P_phi_p)
     % Defino el sensor para phi
     G_sphi = G_gyro;
