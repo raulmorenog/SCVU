@@ -750,47 +750,47 @@ for i = 1:length(K_P_p_deltaA)
     Y_AP_P = [Y_AP_P; imag(FT_AP_CL_1(i).p.P{1,1})]; 
 end
 
-%ELEGIMOS K_P_p_deltaA = 0.75 (i = 4)
+% ELEGIMOS K_P_p_deltaA = 0.55 (i = 3)
 
-K_P_phi_p = 0.25:0.25:2.25;
+K_P_phi_p = 0.05:0.15:0.8;
 X_AP_P_2 = []; Y_AP_P_2 = [];
 for i = 1:length(K_P_phi_p)
-    [FT_AP_CL_2(i), FT_AP_OL_2(i)] = Autopilot_FT_2(FT_AP_CL_1(4),G_gyro,K_P_phi_p(i));
+    [FT_AP_CL_2(i), FT_AP_OL_2(i)] = Autopilot_FT_2(FT_AP_CL_1(3),G_gyro,K_P_phi_p(i));
     %Saco los polos de la función de phi de lazo cerrado
     X_AP_P_2 = [X_AP_P_2; real(FT_AP_CL_2(i).phi.P{1,1})]; 
     Y_AP_P_2 = [Y_AP_P_2; imag(FT_AP_CL_2(i).phi.P{1,1})]; 
 end
 
 
-% Lugar de las raices p
+% % Lugar de las raices p
+% 
+% XAP = zeros(13,length(K_P_p_deltaA)); YAP = zeros(13,length(K_P_p_deltaA)); 
+% XAP(:,1) = X_AP_P(1:13); YAP(:,1) = Y_AP_P(1:13);
+% XAP(:,2) = X_AP_P(14:26); YAP(:,2) = Y_AP_P(14:26);
+% XAP(:,3) = X_AP_P(27:39); YAP(:,3) = Y_AP_P(27:39);
+% XAP(:,4) = X_AP_P(40:52); YAP(:,4) = Y_AP_P(40:52);
+% XAP(:,5) = X_AP_P(53:65); YAP(:,5) = Y_AP_P(53:65);
+% XAP(:,6) = X_AP_P(66:78); YAP(:,6) = Y_AP_P(66:78);
+% % XAP(:,7) = X_AP_P(61:70); YAP(:,7) = Y_AP_P(61:70);
+% % XAP(:,8) = X_AP_P(71:80); YAP(:,8) = Y_AP_P(71:80);
 
-XAP = zeros(13,length(K_P_p_deltaA)); YAP = zeros(13,length(K_P_p_deltaA)); 
-XAP(:,1) = X_AP_P(1:13); YAP(:,1) = Y_AP_P(1:13);
-XAP(:,2) = X_AP_P(14:26); YAP(:,2) = Y_AP_P(14:26);
-XAP(:,3) = X_AP_P(27:39); YAP(:,3) = Y_AP_P(27:39);
-XAP(:,4) = X_AP_P(40:52); YAP(:,4) = Y_AP_P(40:52);
-XAP(:,5) = X_AP_P(53:65); YAP(:,5) = Y_AP_P(53:65);
-XAP(:,6) = X_AP_P(66:78); YAP(:,6) = Y_AP_P(66:78);
-% XAP(:,7) = X_AP_P(61:70); YAP(:,7) = Y_AP_P(61:70);
-% XAP(:,8) = X_AP_P(71:80); YAP(:,8) = Y_AP_P(71:80);
-
-figure(27)
-marker = {'xr','xy','xc','xg','xb','xb','xk','xk','xm','xm'};
-for i = 1:13
-    plot(XAP(i,:),YAP(i,:),marker{i},'markersize',6)
-    grid on; hold on;
-end
-xa = [.83 .85]; ya = [.68 .9]; 
-annotation('arrow',xa,ya,'color','k'); hold on; % Azul
-xa = [.7 .73]; ya = [.58 .67]; 
-annotation('arrow',xa,ya,'color','k'); hold on; % Rosa
-xa = [.3 .18]; ya = [.54 0.54]; 
-annotation('arrow',xa,ya,'color','k'); hold on; % Rojo
-xa = [.73 .68]; ya = [.54 0.54]; 
-annotation('arrow',xa,ya,'color','k'); hold on; % Verde
-
-xlabel('$Re$ $[\mathrm{s^{-1}}]$','interpreter','latex','fontsize',14); 
-ylabel('$Im$ $[\mathrm{s^{-1}}]$','interpreter','latex','fontsize',14);
+% figure(27)
+% marker = {'xr','xy','xc','xg','xb','xb','xk','xk','xm','xm'};
+% for i = 1:13
+%     plot(XAP(i,:),YAP(i,:),marker{i},'markersize',6)
+%     grid on; hold on;
+% end
+% xa = [.83 .85]; ya = [.68 .9]; 
+% annotation('arrow',xa,ya,'color','k'); hold on; % Azul
+% xa = [.7 .73]; ya = [.58 .67]; 
+% annotation('arrow',xa,ya,'color','k'); hold on; % Rosa
+% xa = [.3 .18]; ya = [.54 0.54]; 
+% annotation('arrow',xa,ya,'color','k'); hold on; % Rojo
+% xa = [.73 .68]; ya = [.54 0.54]; 
+% annotation('arrow',xa,ya,'color','k'); hold on; % Verde
+% 
+% xlabel('$Re$ $[\mathrm{s^{-1}}]$','interpreter','latex','fontsize',14); 
+% ylabel('$Im$ $[\mathrm{s^{-1}}]$','interpreter','latex','fontsize',14);
 
 % Diagrama de Nichols P
 figure(28)
@@ -821,7 +821,7 @@ hold on; set(gca,'YTick',[-150:10:100]); % dB
 axis([0 540 -150 100])
 legend(lg_p,'interpreter','latex','fontsize',12,'location','best')
 grid on
-sgtitle('Nichols, Autopiloto Open Loop','interpreter','latex','fontsize',12)
+sgtitle('Nichols, Inner Loop','interpreter','latex','fontsize',12)
 
 % Diagrama de Nichols Phi
 figure(29)
@@ -851,46 +851,53 @@ hold on; set(gca,'YTick',[-150:10:100]); % dB
 axis([0 360 -150 100])
 legend(lg_phi,'interpreter','latex','fontsize',12,'location','best')
 grid on
-sgtitle('Nichols, Autopiloto Open Loop','interpreter','latex','fontsize',12)
+sgtitle('Nichols, Outer Loop','interpreter','latex','fontsize',12)
 
 
-for i = 1:length(K_P)
+    % Respuesta de phi para K_P_p_deltaA = 0.75
+KP_p_deltaA = 0.55;
+for i = 1:length(K_P_phi_p)
     % Llamo al modelo de simulink para los distintos valores de la ganancia
-    K_P_ = K_P(i);
-    lg{i} = ['$K_P$ = ',num2str(round(K_P(i),3))];
-    RT_AP_K(i) = sim('modelo_AP_15',50);
-end 
-iFig = 30;
+    KP_phi_p = K_P_phi_p(i);
+    lgd{i} = ['$K_P$ = ',num2str(round(KP_phi_p,3))];
+    RT_AP_K(i) = sim('modelo_AP_15_cascada',50);
+    [rise_timeAP(i), time_delayAP(i)] = rise_delay(RT_AP_K(i).tout,...
+    RT_AP_K(i).phi);
+    DeltaSS_AP(i) = 15-RT_AP_K(i).phi(end);
+end
 
+iFig = 30;
 for j = 1:5
     figure(iFig)
-    for i = 1:length(K_P)
+    for i = 1:length(K_P_phi_p)
         if j == 1
-            plot(RT_AP_K(i).tout,RT_AP_K(i).beta,'-'); hold on;
+            plot(RT_AP_K(i).tout,RT_AP_K(i).beta,'-'); hold on; grid on;
             xlabel('Tiempo [s]','interpreter','latex','fontsize',14)
             ylabel('$\beta$ $[\mathrm{^\circ}]$','interpreter','latex',...
                 'fontsize',14)
             legend(lgd,'interpreter','latex','fontsize',14,'location','best')
         elseif j == 2
-            plot(RT_AP_K(i).tout,RT_AP_K(i).r,'-'); hold on;
+            plot(RT_AP_K(i).tout,RT_AP_K(i).r,'-'); hold on; grid on;
             xlabel('Tiempo [s]','interpreter','latex','fontsize',14)
             ylabel('$r$ $[\mathrm{^\circ/s}]$','interpreter','latex',...
                 'fontsize',14)
             legend(lgd,'interpreter','latex','fontsize',14,'location','best')
         elseif j == 3
-            plot(RT_AP_K(i).tout,RT_AP_K(i).phi,'-'); hold on;
+            plot(RT_AP_K(i).tout,RT_AP_K(i).phi,'-'); hold on; grid on;
             xlabel('Tiempo [s]','interpreter','latex','fontsize',14)
             ylabel('$\phi$ $[\mathrm{^\circ}]$','interpreter','latex',...
                 'fontsize',14)
+            yticks(0:3:16)
+            axis([0 50 0 16])
             legend(lgd,'interpreter','latex','fontsize',14,'location','best')
         elseif j == 4
-            plot(RT_AP_K(i).tout,RT_AP_K(i).p,'-'); hold on;
+            plot(RT_AP_K(i).tout,RT_AP_K(i).p,'-'); hold on; grid on;
             xlabel('Tiempo [s]','interpreter','latex','fontsize',14)
             ylabel('$p$ $[\mathrm{^\circ/s}]$','interpreter','latex',...
                 'fontsize',14)
             legend(lgd,'interpreter','latex','fontsize',14,'location','best')
         elseif j == 5
-            plot(RT_AP_K(i).tout,RT_AP_K(i).deltaA_AP,'-'); hold on;
+            plot(RT_AP_K(i).tout,RT_AP_K(i).deltaA_AP,'-'); hold on; grid on;
             xlabel('Tiempo [s]','interpreter','latex','fontsize',14)
             ylabel('${\delta_a}_{cmd}$ $[\mathrm{^\circ}]$','interpreter','latex',...
                 'fontsize',14)
