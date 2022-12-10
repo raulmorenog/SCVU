@@ -406,7 +406,7 @@ for i = 4;    % F_beta_target
     
 end
 for i = 1:3
-    lg{i} = ['$[K_{\delta_r r}]_P$ = ',num2str(a(i))];
+    lg{i} = ['$[K_{\delta_r r}]_P$ = ',num2str(round(a(i),3))];
 end
 plot([180 180+45],[6 0],'r-'); hold on
 plot([180 180+45],[-6 0],'r-'); hold on
@@ -953,4 +953,3 @@ for j = 1:5
     end
     iFig = iFig+1;
 end
-
